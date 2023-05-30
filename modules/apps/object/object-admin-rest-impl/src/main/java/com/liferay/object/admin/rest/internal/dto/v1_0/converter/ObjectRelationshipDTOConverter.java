@@ -65,6 +65,8 @@ public class ObjectRelationshipDTOConverter
 					edge = serviceBuilderObjectRelationship.isEdge();
 				}
 
+				externalReferenceCode =
+					serviceBuilderObjectRelationship.getExternalReferenceCode();
 				id = serviceBuilderObjectRelationship.getObjectRelationshipId();
 				label = LocalizedMapUtil.getLanguageIdMap(
 					serviceBuilderObjectRelationship.getLabelMap());
