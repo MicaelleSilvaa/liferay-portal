@@ -10,6 +10,7 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.exception.DuplicateObjectRelationshipException;
+import com.liferay.object.exception.DuplicateObjectRelationshipExternalReferenceCodeException;
 import com.liferay.object.exception.NoSuchObjectRelationshipException;
 import com.liferay.object.exception.ObjectRelationshipEdgeException;
 import com.liferay.object.exception.ObjectRelationshipNameException;
@@ -761,6 +762,10 @@ public class ObjectRelationshipLocalServiceImpl
 				"Reverse object relationships cannot be updated");
 		}
 
+		_validateExternalReferenceCode(
+			externalReferenceCode, objectRelationshipId,
+			objectRelationship.getCompanyId(),
+			objectRelationship.getObjectDefinitionId1());
 		_validateParameterObjectFieldId(
 			_objectDefinitionPersistence.findByPrimaryKey(
 				objectRelationship.getObjectDefinitionId1()),
@@ -911,18 +916,20 @@ public class ObjectRelationshipLocalServiceImpl
 			objectDefinition1, objectDefinition2, name, parameterObjectFieldId,
 			type);
 
+		User user = _userLocalService.getUser(userId);
+
+		_validateExternalReferenceCode(
+			externalReferenceCode, 0L, user.getCompanyId(),
+			objectDefinitionId1);
+
 		ObjectRelationship objectRelationship =
 			objectRelationshipPersistence.create(
 				counterLocalService.increment());
 
 		objectRelationship.setExternalReferenceCode(externalReferenceCode);
-
-		User user = _userLocalService.getUser(userId);
-
 		objectRelationship.setCompanyId(user.getCompanyId());
 		objectRelationship.setUserId(user.getUserId());
 		objectRelationship.setUserName(user.getFullName());
-
 		objectRelationship.setObjectDefinitionId1(objectDefinitionId1);
 		objectRelationship.setObjectDefinitionId2(objectDefinitionId2);
 		objectRelationship.setParameterObjectFieldId(parameterObjectFieldId);
@@ -1123,6 +1130,26 @@ public class ObjectRelationshipLocalServiceImpl
 			throw new ObjectRelationshipEdgeException(
 				"Object relationship must not be between unmodifiable system " +
 					"object definitions to be an edge of a root context");
+		}
+	}
+
+	private void _validateExternalReferenceCode(
+		String externalReferenceCode, long objectRelationshipId, long companyId,
+		long objectDefinitionId1) {
+
+		if (Validator.isNull(externalReferenceCode)) {
+			return;
+		}
+
+		ObjectRelationship objectRelationship =
+			objectRelationshipPersistence.fetchByERC_C_ODI1(
+				externalReferenceCode, companyId, objectDefinitionId1);
+
+		if ((objectRelationship != null) &&
+			(objectRelationship.getObjectRelationshipId() !=
+				objectRelationshipId)) {
+
+			throw new DuplicateObjectRelationshipExternalReferenceCodeException();
 		}
 	}
 
