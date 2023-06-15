@@ -15,6 +15,7 @@ import com.liferay.object.admin.rest.internal.odata.entity.v1_0.ObjectLayoutEnti
 import com.liferay.object.admin.rest.resource.v1_0.ObjectLayoutResource;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectLayoutService;
@@ -306,8 +307,25 @@ public class ObjectLayoutResourceImpl extends BaseObjectLayoutResourceImpl {
 				objectLayoutTab.getObjectLayoutBoxes(),
 				objectLayoutBox -> _toObjectLayoutBox(
 					objectDefinitionId, objectLayoutBox)));
-		serviceBuilderObjectLayoutTab.setObjectRelationshipId(
-			GetterUtil.getLong(objectLayoutTab.getObjectRelationshipId()));
+
+		if (Validator.isNotNull(
+				objectLayoutTab.getObjectRelationshipExternalReferenceCode())) {
+
+			ObjectRelationship objectRelationship =
+				_objectRelationshipLocalService.
+					getObjectRelationshipByExternalReferenceCode(
+						objectLayoutTab.
+							getObjectRelationshipExternalReferenceCode(),
+						contextCompany.getCompanyId(), objectDefinitionId);
+
+			serviceBuilderObjectLayoutTab.setObjectRelationshipId(
+				objectRelationship.getObjectRelationshipId());
+		}
+		else {
+			serviceBuilderObjectLayoutTab.setObjectRelationshipId(
+				GetterUtil.getLong(objectLayoutTab.getObjectRelationshipId()));
+		}
+
 		serviceBuilderObjectLayoutTab.setPriority(
 			objectLayoutTab.getPriority());
 
