@@ -49,7 +49,7 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro assertDeleteEntryButtonIsPresent(entry = null) {
+	macro assertDeleteEntryButtonIsPresent {
 		if (IsElementPresent(key_entry = "", locator1 = "ObjectPortlet#ENTRY_KEBAB_MENU")) {
 			Click(
 				key_entry = ${entry},
@@ -65,7 +65,7 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro assertDeleteEntryButtonNotPresent(entry = null) {
+	macro assertDeleteEntryButtonNotPresent {
 		if (IsElementPresent(key_entry = "", locator1 = "ObjectPortlet#ENTRY_KEBAB_MENU")) {
 			Click(
 				key_entry = ${entry},

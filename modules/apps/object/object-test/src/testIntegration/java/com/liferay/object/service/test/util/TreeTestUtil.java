@@ -91,7 +91,7 @@ public class TreeTestUtil {
 
 		ObjectRelationship objectRelationship =
 			objectRelationshipLocalService.addObjectRelationship(
-				TestPropsValues.getUserId(),
+				null, TestPropsValues.getUserId(),
 				parentObjectDefinition.getObjectDefinitionId(),
 				objectDefinition.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -100,7 +100,7 @@ public class TreeTestUtil {
 				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
 		objectRelationshipLocalService.updateObjectRelationship(
-			objectRelationship.getObjectRelationshipId(), 0,
+			null, objectRelationship.getObjectRelationshipId(), 0,
 			ObjectRelationshipConstants.DELETION_TYPE_CASCADE, true,
 			objectRelationship.getLabelMap());
 

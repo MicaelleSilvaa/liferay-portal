@@ -253,7 +253,7 @@ public class DefaultObjectEntryManagerImplTest {
 		ObjectFieldUtil.addCustomObjectField(
 			new TextObjectFieldBuilder(
 			).userId(
-				adminUser.getUserId()
+				_adminUser.getUserId()
 			).labelMap(
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
 			).name(
@@ -397,7 +397,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectRelationship objectRelationship1 =
 			_objectRelationshipLocalService.addObjectRelationship(
-				_adminUser.getUserId(),
+				null, _adminUser.getUserId(),
 				_objectDefinition1.getObjectDefinitionId(),
 				_objectDefinition2.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -457,7 +457,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectRelationship objectRelationship2 =
 			_objectRelationshipLocalService.addObjectRelationship(
-				_adminUser.getUserId(),
+				null, _adminUser.getUserId(),
 				accountEntryObjectDefinition.getObjectDefinitionId(),
 				_objectDefinition3.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -775,7 +775,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectRelationship objectRelationship =
 			_objectRelationshipLocalService.addObjectRelationship(
-				_adminUser.getUserId(),
+				null, _adminUser.getUserId(),
 				_objectDefinition1.getObjectDefinitionId(),
 				_objectDefinition1.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -1123,7 +1123,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectRelationship objectRelationship =
 			_objectRelationshipLocalService.addObjectRelationship(
-				_adminUser.getUserId(),
+				null, _adminUser.getUserId(),
 				objectDefinition1.getObjectDefinitionId(),
 				objectDefinition2.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -1167,7 +1167,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		objectRelationship =
 			_objectRelationshipLocalService.updateObjectRelationship(
-				objectRelationship.getObjectRelationshipId(), 0,
+				null, objectRelationship.getObjectRelationshipId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_DISASSOCIATE, false,
 				objectRelationship.getLabelMap());
 
@@ -1207,7 +1207,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		objectRelationship =
 			_objectRelationshipLocalService.updateObjectRelationship(
-				objectRelationship.getObjectRelationshipId(), 0,
+				null, objectRelationship.getObjectRelationshipId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_PREVENT, false,
 				objectRelationship.getLabelMap());
 
@@ -1815,29 +1815,29 @@ public class DefaultObjectEntryManagerImplTest {
 
 		// Search
 
-		testGetObjectEntries(
+		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"search", String.valueOf(parentObjectEntry1.getId())
 			).build(),
 			childObjectEntry1);
 
-		ObjectField objectField = objectFieldLocalService.fetchObjectField(
+		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
 			_objectDefinition1.getObjectDefinitionId(), "textObjectFieldName");
 
 		_objectDefinition1.setTitleObjectFieldId(
 			objectField.getObjectFieldId());
 
 		_objectDefinition1 =
-			objectDefinitionLocalService.updateObjectDefinition(
+			_objectDefinitionLocalService.updateObjectDefinition(
 				_objectDefinition1);
 
-		testGetObjectEntries(
+		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"search", "Able"
 			).build(),
 			childObjectEntry1);
 
-		objectField = objectFieldLocalService.fetchObjectField(
+		objectField = _objectFieldLocalService.fetchObjectField(
 			_objectDefinition1.getObjectDefinitionId(),
 			"textObjectFieldNameExtension");
 
@@ -1845,10 +1845,10 @@ public class DefaultObjectEntryManagerImplTest {
 			objectField.getObjectFieldId());
 
 		_objectDefinition1 =
-			objectDefinitionLocalService.updateObjectDefinition(
+			_objectDefinitionLocalService.updateObjectDefinition(
 				_objectDefinition1);
 
-		testGetObjectEntries(
+		_testGetObjectEntries(
 			HashMapBuilder.put(
 				"search", "Baker"
 			).build(),
@@ -2075,7 +2075,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectRelationship objectRelationship1 =
 			_objectRelationshipLocalService.addObjectRelationship(
-				_adminUser.getUserId(),
+				null, _adminUser.getUserId(),
 				_objectDefinition3.getObjectDefinitionId(),
 				childObjectDefinition.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -2089,7 +2089,7 @@ public class DefaultObjectEntryManagerImplTest {
 
 		ObjectRelationship objectRelationship2 =
 			_objectRelationshipLocalService.addObjectRelationship(
-				_adminUser.getUserId(),
+				null, _adminUser.getUserId(),
 				accountEntryObjectDefinition.getObjectDefinitionId(),
 				childObjectDefinition.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
@@ -3195,6 +3195,32 @@ public class DefaultObjectEntryManagerImplTest {
 
 		_removeResourcePermission(
 			ObjectActionKeys.ADD_OBJECT_ENTRY, _buyerRole);
+	}
+
+	private void _testGetObjectEntries(
+			Map<String, String> context, ObjectEntry... expectedObjectEntries)
+		throws Exception {
+
+		Sort[] sorts = null;
+
+		if (context.containsKey("sort")) {
+			String[] sort = StringUtil.split(context.get("sort"), ":");
+
+			sorts = new Sort[] {
+				SortFactoryUtil.create(sort[0], Objects.equals(sort[1], "desc"))
+			};
+		}
+		else {
+			sorts = new Sort[] {SortFactoryUtil.create("createDate", false)};
+		}
+
+		Page<ObjectEntry> page = _defaultObjectEntryManager.getObjectEntries(
+			_companyId, _objectDefinition2, null, null, _dtoConverterContext,
+			context.get("filter"), null, context.get("search"), sorts);
+
+		_assertEquals(
+			(List<ObjectEntry>)page.getItems(),
+			ListUtil.fromArray(expectedObjectEntries));
 	}
 
 	private void _updateLocalizedObjectEntryValues(
