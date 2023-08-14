@@ -166,8 +166,9 @@ public class WebServerServlet extends HttpServlet {
 					PortalUtil.getUserPassword(httpServletRequest));
 			}
 
-			String[] pathArray = StringUtil.split(
-				_getPath(httpServletRequest), CharPool.SLASH);
+			String path = _getPath(httpServletRequest);
+
+			String[] pathArray = StringUtil.split(path, CharPool.SLASH);
 
 			if (pathArray.length == 0) {
 				return true;
@@ -709,8 +710,9 @@ public class WebServerServlet extends HttpServlet {
 				modifiedDate = image.getModifiedDate();
 			}
 			else {
-				String[] pathArray = StringUtil.split(
-					_getPath(httpServletRequest), CharPool.SLASH);
+				String path = _getPath(httpServletRequest);
+
+				String[] pathArray = StringUtil.split(path, CharPool.SLASH);
 
 				if ((pathArray.length == 0) ||
 					pathArray[0].equals("language")) {
@@ -1473,7 +1475,9 @@ public class WebServerServlet extends HttpServlet {
 		return user.getGroup();
 	}
 
-	private static String _getPath(HttpServletRequest httpServletRequest) {
+	private static String _getPath(
+		HttpServletRequest httpServletRequest) {
+
 		String path = httpServletRequest.getRequestURI();
 
 		String location = httpServletRequest.getServletPath();
@@ -1621,8 +1625,9 @@ public class WebServerServlet extends HttpServlet {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		String[] pathArray = StringUtil.split(
-			_getPath(httpServletRequest), CharPool.SLASH);
+		String path = _getPath(httpServletRequest);
+
+		String[] pathArray = StringUtil.split(path, CharPool.SLASH);
 
 		if (pathArray.length == 0) {
 
