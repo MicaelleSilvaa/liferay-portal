@@ -53,7 +53,7 @@ public class DDMFieldUpgradeProcess extends UpgradeProcess {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
 						StringBundler.concat(
-							"Truncated the ", fieldName, " value for field ID ",
+							"Truncated the ", fieldName, " value for field id ",
 							fieldId, " because it is too long"));
 				}
 			}
