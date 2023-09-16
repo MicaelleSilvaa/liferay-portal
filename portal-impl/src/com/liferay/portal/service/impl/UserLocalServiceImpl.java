@@ -3921,6 +3921,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			"/portal/update_password?p_l_id=", serviceContext.getPlid(),
 			"&ticketKey=", ticket.getTicketId(), "_", ticket.getKey());
 
+		ticket.setKey(PasswordEncryptorUtil.encrypt(ticket.getKey()));
+
 		_ticketLocalService.updateTicket(ticket);
 
 		sendPasswordNotification(
