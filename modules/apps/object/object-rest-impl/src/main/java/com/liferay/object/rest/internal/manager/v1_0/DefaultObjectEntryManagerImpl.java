@@ -940,7 +940,8 @@ public class DefaultObjectEntryManagerImpl
 							String.valueOf(
 								nestedObjectEntry.get("externalReferenceCode")),
 							relatedObjectDefinition.getCompanyId(),
-							dtoConverterContext.getUser(), nestedObjectEntry));
+							dtoConverterContext.getUser(), nestedObjectEntry),
+						new ServiceContext());
 				}
 			}
 			else {
@@ -985,7 +986,10 @@ public class DefaultObjectEntryManagerImpl
 
 						_relateNestedObjectEntry(
 							objectDefinition, objectRelationship, primaryKey,
-							nestedObjectEntry.getId());
+							nestedObjectEntry.getId(),
+							_createServiceContext(
+								nestedObjectEntry,
+								dtoConverterContext.getUserId()));
 					}
 				}
 			}
@@ -1037,10 +1041,23 @@ public class DefaultObjectEntryManagerImpl
 			serviceContext.setAssetTagNames(objectEntry.getKeywords());
 		}
 
+		if (properties.get("keywords") != null) {
+			serviceContext.setAssetTagNames(
+				ArrayUtil.toStringArray(
+					(List<String>)properties.get("keywords")));
+		}
+
 		if (properties.get("tagNames") != null) {
 			serviceContext.setAssetTagNames(
 				ArrayUtil.toStringArray(
 					(List<String>)properties.get("tagNames")));
+		}
+
+		if (properties.get("taxonomyCategoryIds") != null) {
+			serviceContext.setAssetCategoryIds(
+				ListUtil.toLongArray(
+					(List<Integer>)properties.get("taxonomyCategoryIds"),
+					Long::valueOf));
 		}
 
 		serviceContext.setUserId(userId);
@@ -1381,7 +1398,7 @@ public class DefaultObjectEntryManagerImpl
 	private void _relateNestedObjectEntry(
 			ObjectDefinition objectDefinition,
 			ObjectRelationship objectRelationship, long primaryKey,
-			long relatedPrimaryKey)
+			long relatedPrimaryKey, ServiceContext serviceContext)
 		throws Exception {
 
 		long primaryKey1 = relatedPrimaryKey;
@@ -1396,7 +1413,7 @@ public class DefaultObjectEntryManagerImpl
 
 		_objectRelationshipService.addObjectRelationshipMappingTableValues(
 			objectRelationship.getObjectRelationshipId(), primaryKey1,
-			primaryKey2, new ServiceContext());
+			primaryKey2, serviceContext);
 	}
 
 	private Date _toDate(Locale locale, String valueString) {
