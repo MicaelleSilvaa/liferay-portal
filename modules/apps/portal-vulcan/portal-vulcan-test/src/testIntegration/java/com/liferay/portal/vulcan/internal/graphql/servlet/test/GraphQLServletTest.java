@@ -75,7 +75,7 @@ public class GraphQLServletTest extends BaseGraphQLServlet {
 	}
 
 	@Test
-	public void testWithQueryDepthLimit() throws Exception {
+	public void testQueryDepthLimit() throws Exception {
 		Bundle bundle = FrameworkUtil.getBundle(GraphQLServletTest.class);
 
 		BundleContext bundleContext = bundle.getBundleContext();
