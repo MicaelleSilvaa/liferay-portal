@@ -17,7 +17,8 @@ public class QueryDepthLimitExceededException extends AbortExecutionException {
 	public QueryDepthLimitExceededException(int depth, int queryDepthLimit) {
 		super(
 			StringBundler.concat(
-				"Query depth limit exceeded ", depth, " > ", queryDepthLimit));
+				"Depth ", depth, " is greater than the query depth limit of ",
+				queryDepthLimit));
 	}
 
 }
