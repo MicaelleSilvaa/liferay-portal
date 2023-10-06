@@ -34,7 +34,9 @@ public class QueryDepthLimitInstrumentation
 	}
 
 	@Override
-	public AbortExecutionException mkAbortException(int depth, int maxDepth) {
+	public AbortExecutionException mkAbortException(
+		int depth, int queryDepthLimit) {
+
 		throw new QueryDepthLimitExceededException(depth, _queryDepthLimit);
 	}
 
