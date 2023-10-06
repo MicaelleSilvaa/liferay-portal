@@ -33,16 +33,16 @@ public class QueryDepthLimitInstrumentationTest {
 
 	@Test
 	public void testMkAbortException() {
-		int maxDepthLimit = RandomTestUtil.randomInt();
+		int queryDepthLimit = RandomTestUtil.randomInt();
 
 		QueryDepthLimitInstrumentation queryDepthLimitInstrumentation =
-			QueryDepthLimitInstrumentation.of(maxDepthLimit);
+			QueryDepthLimitInstrumentation.of(queryDepthLimit);
 
 		int limit = RandomTestUtil.randomInt();
 
 		try {
 			queryDepthLimitInstrumentation.mkAbortException(
-				limit + maxDepthLimit, maxDepthLimit);
+				limit + queryDepthLimit, queryDepthLimit);
 
 			Assert.fail();
 		}
@@ -54,28 +54,28 @@ public class QueryDepthLimitInstrumentationTest {
 					AbortExecutionException);
 			Assert.assertEquals(
 				StringBundler.concat(
-					"Query depth limit exceeded ", limit + maxDepthLimit, " > ",
-					maxDepthLimit),
+					"Query depth limit exceeded ", limit + queryDepthLimit, " > ",
+					queryDepthLimit),
 				queryDepthLimitExceededException.getMessage());
 		}
 	}
 
 	@Test
 	public void testQueryDepthLimit() {
-		int maxDepthLimit = RandomTestUtil.randomInt();
+		int queryDepthLimit = RandomTestUtil.randomInt();
 
 		QueryDepthLimitInstrumentation queryDepthLimitInstrumentation =
-			QueryDepthLimitInstrumentation.of(maxDepthLimit);
+			QueryDepthLimitInstrumentation.of(queryDepthLimit);
 
 		Function<QueryDepthInfo, Boolean> function =
 			queryDepthLimitInstrumentation.getFunction();
 
 		Assert.assertFalse(
-			function.apply(_createQueryDepthInfo(maxDepthLimit - 1)));
+			function.apply(_createQueryDepthInfo(queryDepthLimit - 1)));
 		Assert.assertFalse(
-			function.apply(_createQueryDepthInfo(maxDepthLimit)));
+			function.apply(_createQueryDepthInfo(queryDepthLimit)));
 		Assert.assertTrue(
-			function.apply(_createQueryDepthInfo(maxDepthLimit + 1)));
+			function.apply(_createQueryDepthInfo(queryDepthLimit + 1)));
 	}
 
 	@Test
