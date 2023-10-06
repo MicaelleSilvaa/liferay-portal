@@ -53,6 +53,7 @@ import com.liferay.object.service.persistence.ObjectLayoutColumnPersistence;
 import com.liferay.object.service.persistence.ObjectRelationshipPersistence;
 import com.liferay.object.system.SystemObjectDefinitionManager;
 import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
@@ -313,17 +314,8 @@ public class ObjectFieldLocalServiceImpl
 
 	@Override
 	public ObjectField fetchObjectField(long objectFieldId) {
-		ObjectField objectField = objectFieldPersistence.fetchByPrimaryKey(
-			objectFieldId);
-
-		if (objectField != null) {
-			objectField.setObjectFieldSettings(
-				_objectFieldSettingLocalService.
-					getObjectFieldObjectFieldSettings(
-						objectField.getObjectFieldId()));
-		}
-
-		return objectField;
+		return _getObjectField(
+			objectFieldPersistence.fetchByPrimaryKey(objectFieldId));
 	}
 
 	@Override
@@ -439,35 +431,24 @@ public class ObjectFieldLocalServiceImpl
 
 	@Override
 	public List<ObjectField> getLocalizedObjectFields(long objectDefinitionId) {
-		return objectFieldPersistence.findByODI_L(objectDefinitionId, true);
+		return _getObjectFields(
+			objectFieldPersistence.findByODI_L(objectDefinitionId, true));
 	}
 
 	@Override
 	public ObjectField getObjectField(long objectFieldId)
 		throws PortalException {
 
-		ObjectField objectField = objectFieldPersistence.findByPrimaryKey(
-			objectFieldId);
-
-		objectField.setObjectFieldSettings(
-			_objectFieldSettingLocalService.getObjectFieldObjectFieldSettings(
-				objectField.getObjectFieldId()));
-
-		return objectField;
+		return _getObjectField(
+			objectFieldPersistence.findByPrimaryKey(objectFieldId));
 	}
 
 	@Override
 	public ObjectField getObjectField(long objectDefinitionId, String name)
 		throws PortalException {
 
-		ObjectField objectField = objectFieldPersistence.findByODI_N(
-			objectDefinitionId, name);
-
-		objectField.setObjectFieldSettings(
-			_objectFieldSettingLocalService.getObjectFieldObjectFieldSettings(
-				objectField.getObjectFieldId()));
-
-		return objectField;
+		return _getObjectField(
+			objectFieldPersistence.findByODI_N(objectDefinitionId, name));
 	}
 
 	@Override
@@ -485,34 +466,17 @@ public class ObjectFieldLocalServiceImpl
 
 	@Override
 	public List<ObjectField> getObjectFields(long objectDefinitionId) {
-		List<ObjectField> objectFields =
-			objectFieldPersistence.findByObjectDefinitionId(objectDefinitionId);
-
-		for (ObjectField objectField : objectFields) {
-			objectField.setObjectFieldSettings(
-				_objectFieldSettingLocalService.
-					getObjectFieldObjectFieldSettings(
-						objectField.getObjectFieldId()));
-		}
-
-		return objectFields;
+		return _getObjectFields(
+			objectFieldPersistence.findByObjectDefinitionId(
+				objectDefinitionId));
 	}
 
 	@Override
 	public List<ObjectField> getObjectFields(
 		long objectDefinitionId, boolean system) {
 
-		List<ObjectField> objectFields = objectFieldPersistence.findByODI_S(
-			objectDefinitionId, system);
-
-		for (ObjectField objectField : objectFields) {
-			objectField.setObjectFieldSettings(
-				_objectFieldSettingLocalService.
-					getObjectFieldObjectFieldSettings(
-						objectField.getObjectFieldId()));
-		}
-
-		return objectFields;
+		return _getObjectFields(
+			objectFieldPersistence.findByODI_S(objectDefinitionId, system));
 	}
 
 	@Override
@@ -520,35 +484,18 @@ public class ObjectFieldLocalServiceImpl
 		long objectDefinitionId, int start, int end,
 		OrderByComparator<ObjectField> orderByComparator) {
 
-		List<ObjectField> objectFields =
+		return _getObjectFields(
 			objectFieldPersistence.findByObjectDefinitionId(
-				objectDefinitionId, start, end, orderByComparator);
-
-		for (ObjectField objectField : objectFields) {
-			objectField.setObjectFieldSettings(
-				_objectFieldSettingLocalService.
-					getObjectFieldObjectFieldSettings(
-						objectField.getObjectFieldId()));
-		}
-
-		return objectFields;
+				objectDefinitionId, start, end, orderByComparator));
 	}
 
 	@Override
 	public List<ObjectField> getObjectFields(
 		long objectDefinitionId, String dbTableName) {
 
-		List<ObjectField> objectFields = objectFieldPersistence.findByODI_DTN(
-			objectDefinitionId, dbTableName);
-
-		for (ObjectField objectField : objectFields) {
-			objectField.setObjectFieldSettings(
-				_objectFieldSettingLocalService.
-					getObjectFieldObjectFieldSettings(
-						objectField.getObjectFieldId()));
-		}
-
-		return objectFields;
+		return _getObjectFields(
+			objectFieldPersistence.findByODI_DTN(
+				objectDefinitionId, dbTableName));
 	}
 
 	@Override
@@ -1092,6 +1039,23 @@ public class ObjectFieldLocalServiceImpl
 		}
 
 		return objectField;
+	}
+
+	private ObjectField _getObjectField(ObjectField objectField) {
+		if (objectField == null) {
+			return null;
+		}
+
+		objectField.setObjectFieldSettings(
+			_objectFieldSettingLocalService.getObjectFieldObjectFieldSettings(
+				objectField.getObjectFieldId()));
+
+		return objectField;
+	}
+
+	private List<ObjectField> _getObjectFields(List<ObjectField> objectFields) {
+		return TransformUtil.transform(
+			objectFields, objectField -> _getObjectField(objectField));
 	}
 
 	private ObjectField _getObjectRelationshipField(
