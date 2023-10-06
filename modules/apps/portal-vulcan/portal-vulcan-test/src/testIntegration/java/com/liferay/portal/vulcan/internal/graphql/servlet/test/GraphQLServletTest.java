@@ -126,8 +126,6 @@ public class GraphQLServletTest extends BaseGraphQLServlet {
 					jsonObject, "JSONArray/errors", "Object/0"),
 				JSONCompareMode.LENIENT);
 
-			// Hot configuration update
-
 			factoryConfiguration.update(
 				HashMapDictionaryBuilder.<String, Object>put(
 					"companyId", TestPropsValues.getCompanyId()
