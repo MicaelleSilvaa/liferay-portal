@@ -1023,7 +1023,8 @@ public class ObjectFieldLocalServiceImpl
 			!objectField.compareBusinessType(
 				ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
 			!objectField.compareBusinessType(
-				ObjectFieldConstants.BUSINESS_TYPE_FORMULA)) {
+				ObjectFieldConstants.BUSINESS_TYPE_FORMULA) &&
+			!objectField.isLocalized()) {
 
 			_alterTableDropColumn(
 				objectField.getDBTableName(), objectField.getDBColumnName());
