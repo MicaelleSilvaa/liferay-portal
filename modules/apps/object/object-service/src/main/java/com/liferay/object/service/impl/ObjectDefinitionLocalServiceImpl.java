@@ -1288,6 +1288,16 @@ public class ObjectDefinitionLocalServiceImpl
 			"status", false, false);
 	}
 
+	private void _createIndexMetadata(
+			String dbTableName, boolean unique, String... dbColumnNames)
+		throws PortalException {
+
+		ObjectDBManagerUtil.createIndexMetadata(
+			_currentConnection.getConnection(
+				objectDefinitionPersistence.getDataSource()),
+			dbTableName, unique, dbColumnNames);
+	}
+
 	private void _createLocalizationTable(ObjectDefinition objectDefinition) {
 		DynamicObjectDefinitionLocalizationTable
 			dynamicObjectDefinitionLocalizedTable =
@@ -1338,11 +1348,15 @@ public class ObjectDefinitionLocalServiceImpl
 				continue;
 			}
 
-			ObjectDBManagerUtil.createIndexMetadata(
-				objectField.getDBColumnName(),
-				_currentConnection.getConnection(
-					objectDefinitionPersistence.getDataSource()),
-				dbTableName, unique);
+			if (objectField.isLocalized()) {
+				_createIndexMetadata(
+					objectDefinition.getLocalizationDBTableName(), unique,
+					objectField.getDBColumnName(), "languageId");
+			}
+			else {
+				_createIndexMetadata(
+					dbTableName, unique, objectField.getDBColumnName());
+			}
 		}
 	}
 

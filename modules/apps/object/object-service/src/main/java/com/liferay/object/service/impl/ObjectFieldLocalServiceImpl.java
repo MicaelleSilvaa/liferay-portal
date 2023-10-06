@@ -148,31 +148,17 @@ public class ObjectFieldLocalServiceImpl
 		}
 
 		if (localized) {
-			runSQL(
-				DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
-					objectDefinition.getLocalizationDBTableName(),
-					objectField.getDBColumnName(), dbType));
+			_addObjectFieldColumn(
+				objectDefinition.getLocalizationDBTableName(), objectField,
+				objectField.getDBColumnName(), "languageId");
 		}
 		else if (!objectField.compareBusinessType(
 					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
 				 !objectField.compareBusinessType(
 					 ObjectFieldConstants.BUSINESS_TYPE_FORMULA)) {
 
-			runSQL(
-				DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
-					dbTableName, objectField.getDBColumnName(), dbType));
-
-			if (GetterUtil.getBoolean(
-					ObjectFieldSettingUtil.getValue(
-						ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
-						objectField))) {
-
-				ObjectDBManagerUtil.createIndexMetadata(
-					objectField.getDBColumnName(),
-					_currentConnection.getConnection(
-						objectFieldPersistence.getDataSource()),
-					dbTableName, true);
-			}
+			_addObjectFieldColumn(
+				dbTableName, objectField, objectField.getDBColumnName());
 		}
 
 		return objectField;
@@ -851,6 +837,28 @@ public class ObjectFieldLocalServiceImpl
 		objectField.setSystem(system);
 
 		return objectFieldPersistence.update(objectField);
+	}
+
+	private void _addObjectFieldColumn(
+			String dbTableName, ObjectField objectField,
+			String... dbColumnNames)
+		throws PortalException {
+
+		runSQL(
+			DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
+				dbTableName, objectField.getDBColumnName(),
+				objectField.getDBType()));
+
+		if (GetterUtil.getBoolean(
+				ObjectFieldSettingUtil.getValue(
+					ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
+					objectField))) {
+
+			ObjectDBManagerUtil.createIndexMetadata(
+				_currentConnection.getConnection(
+					objectFieldPersistence.getDataSource()),
+				dbTableName, true, dbColumnNames);
+		}
 	}
 
 	private void _addOrUpdateObjectFieldSettings(
