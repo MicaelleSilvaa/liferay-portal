@@ -160,7 +160,7 @@ public class UpdatePasswordAction implements Action {
 
 		try {
 			Ticket ticket = TicketLocalServiceUtil.fetchTicket(
-				Long.parseLong(ticketId));
+				GetterUtil.getLong(ticketId));
 
 			if ((ticket == null) ||
 				(ticket.getType() != TicketConstants.TYPE_PASSWORD)) {
