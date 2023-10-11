@@ -470,6 +470,29 @@ public class TimeBasedOTPBrowserSetupMFAChecker
 		return true;
 	}
 
+	private void _sendNotificationEmail(
+			String fromAddress, String fromName, String toAddress, User toUser,
+			String subject, String body,
+			MailTemplateContext mailTemplateContext)
+		throws Exception {
+
+		MailTemplate subjectMailTemplate =
+			MailTemplateFactoryUtil.createMailTemplate(subject, false);
+		MailTemplate bodyMailTemplate =
+			MailTemplateFactoryUtil.createMailTemplate(body, true);
+
+		MailMessage mailMessage = new MailMessage(
+			new InternetAddress(fromAddress, fromName),
+			new InternetAddress(toAddress, toUser.getFullName()),
+			subjectMailTemplate.renderAsString(
+				toUser.getLocale(), mailTemplateContext),
+			bodyMailTemplate.renderAsString(
+				toUser.getLocale(), mailTemplateContext),
+			true);
+
+		_mailService.sendEmail(mailMessage);
+	}
+
 	private void _sendReplayWarningEmail(
 			User user, String emailAddress,
 			HttpServletRequest httpServletRequest)
@@ -513,29 +536,6 @@ public class TimeBasedOTPBrowserSetupMFAChecker
 			subject, body, mailTemplateContextBuilder.build());
 	}
 
-	private void _sendNotificationEmail(
-			String fromAddress, String fromName, String toAddress, User toUser,
-			String subject, String body,
-			MailTemplateContext mailTemplateContext)
-		throws Exception {
-
-		MailTemplate subjectMailTemplate =
-			MailTemplateFactoryUtil.createMailTemplate(subject, false);
-		MailTemplate bodyMailTemplate =
-			MailTemplateFactoryUtil.createMailTemplate(body, true);
-
-		MailMessage mailMessage = new MailMessage(
-			new InternetAddress(fromAddress, fromName),
-			new InternetAddress(toAddress, toUser.getFullName()),
-			subjectMailTemplate.renderAsString(
-				toUser.getLocale(), mailTemplateContext),
-			bodyMailTemplate.renderAsString(
-				toUser.getLocale(), mailTemplateContext),
-			true);
-
-		_mailService.sendEmail(mailMessage);
-	}
-
 	private boolean _verify(
 			String mfaTimeBasedOTP, User user,
 			HttpServletRequest httpServletRequest)
@@ -555,11 +555,10 @@ public class TimeBasedOTPBrowserSetupMFAChecker
 			return MFATimeBasedOTPUtil.verifyTimeBasedOTP(
 				_mfaTimeBasedOTPConfiguration.clockSkew(),
 				mfaTimeBasedOTPEntry.getSharedSecret(), mfaTimeBasedOTP);
-		} else {
-
-			_sendReplayWarningEmail(
-				user, user.getEmailAddress(), httpServletRequest);
 		}
+
+		_sendReplayWarningEmail(
+			user, user.getEmailAddress(), httpServletRequest);
 
 		return false;
 	}
