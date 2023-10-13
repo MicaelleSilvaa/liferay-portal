@@ -2015,7 +2015,7 @@ public class ServicePreAction extends Action {
 			httpServletResponse.addHeader("X-Liferay-Request-Group", "3x");
 		}
 
-		if (group.isControlPanel()) {
+		if (group.isControlPanel() || layout.isTypeControlPanel()) {
 			httpServletResponse.addHeader("X-Liferay-Request-Group", "4x");
 		}
 
@@ -2036,7 +2036,7 @@ public class ServicePreAction extends Action {
 			httpServletResponse.addHeader("X-Liferay-Request-Group", "7x");
 		}
 
-		if (group.isLayoutPrototype()) {
+		if (group.isLayoutPrototype() || (layout.getMasterLayoutPlid() > 0)) {
 			httpServletResponse.addHeader("X-Liferay-Request-Group", "8x");
 		}
 
