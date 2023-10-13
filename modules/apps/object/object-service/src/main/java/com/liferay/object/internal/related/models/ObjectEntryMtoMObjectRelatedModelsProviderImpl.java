@@ -142,8 +142,8 @@ public class ObjectEntryMtoMObjectRelatedModelsProviderImpl
 
 	@Override
 	public List<ObjectEntry> getUnrelatedModels(
-			long companyId, long groupId, ObjectDefinition objectDefinition,
-			long objectEntryId, long objectRelationshipId)
+		long companyId, long groupId, ObjectDefinition objectDefinition,
+		long objectEntryId, long objectRelationshipId, int start, int end)
 		throws PortalException {
 
 		ObjectRelationship objectRelationship =
@@ -153,7 +153,7 @@ public class ObjectEntryMtoMObjectRelatedModelsProviderImpl
 		return _objectEntryService.getManyToManyObjectEntries(
 			groupId, objectRelationship.getObjectRelationshipId(),
 			objectEntryId, false, objectRelationship.isReverse(), null,
-			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+			start, end);
 	}
 
 	private final String _className;

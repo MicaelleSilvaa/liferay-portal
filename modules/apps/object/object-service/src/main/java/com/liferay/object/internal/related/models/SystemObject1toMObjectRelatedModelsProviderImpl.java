@@ -296,8 +296,8 @@ public class SystemObject1toMObjectRelatedModelsProviderImpl
 
 	@Override
 	public List<T> getUnrelatedModels(
-			long companyId, long groupId, ObjectDefinition objectDefinition,
-			long objectEntryId, long objectRelationshipId)
+		long companyId, long groupId, ObjectDefinition objectDefinition,
+		long objectEntryId, long objectRelationshipId, int start, int end)
 		throws PortalException {
 
 		Column<?, Long> companyIdColumn = (Column<?, Long>)_table.getColumn(
@@ -364,7 +364,7 @@ public class SystemObject1toMObjectRelatedModelsProviderImpl
 								dynamicObjectDefinitionTable
 							).where(
 								foreignKeyColumn.neq(0L)
-							));
+							).limit(start, end));
 					}
 				)
 			));

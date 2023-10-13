@@ -28,7 +28,6 @@ import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
-import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -780,7 +779,7 @@ public class ObjectRelatedModelsProviderTest {
 				_objectRelatedModelsProvider.getUnrelatedModels(
 					companyId, 0, systemObjectDefinition,
 					objectEntry.getObjectEntryId(),
-					_objectRelationship.getObjectRelationshipId());
+					_objectRelationship.getObjectRelationshipId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS );
 
 			Assert.assertEquals(
 				unrelatedObjectEntries.toString(), 1,
@@ -800,7 +799,7 @@ public class ObjectRelatedModelsProviderTest {
 				_objectRelatedModelsProvider.getUnrelatedModels(
 					companyId, 0, systemObjectDefinition,
 					objectEntry.getObjectEntryId(),
-					_objectRelationship.getObjectRelationshipId());
+					_objectRelationship.getObjectRelationshipId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS );
 
 			Assert.assertEquals(
 				unrelatedObjectEntries.toString(), 0,
