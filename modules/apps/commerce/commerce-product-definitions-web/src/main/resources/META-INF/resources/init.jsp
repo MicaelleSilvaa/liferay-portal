@@ -149,6 +149,4 @@ page import="java.util.StringJoiner" %>
 
 <%
 String languageId = LanguageUtil.getLanguageId(locale);
-
-String redirect = ParamUtil.getString(request, "redirect");
 %>
