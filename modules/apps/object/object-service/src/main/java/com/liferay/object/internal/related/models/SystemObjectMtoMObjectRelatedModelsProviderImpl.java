@@ -22,7 +22,6 @@ import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.petra.sql.dsl.Table;
-import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.petra.sql.dsl.query.FromStep;
 import com.liferay.petra.sql.dsl.query.GroupByStep;
 import com.liferay.petra.string.StringBundler;
@@ -185,18 +184,17 @@ public class SystemObjectMtoMObjectRelatedModelsProviderImpl
 			long objectEntryId, long objectRelationshipId, int start, int end)
 		throws PortalException {
 
-		DSLQuery dslQuery = _getUnrelatedModelsGroupByStep(
-			companyId, DSLQueryFactoryUtil.selectDistinct(_table), groupId,
-			objectDefinition, objectEntryId, objectRelationshipId
-		).limit(
-			start, end
-		);
-
 		PersistedModelLocalService persistedModelLocalService =
 			_persistedModelLocalServiceRegistry.getPersistedModelLocalService(
 				objectDefinition.getClassName());
 
-		return persistedModelLocalService.dslQuery(dslQuery);
+		return persistedModelLocalService.dslQuery(
+			_getUnrelatedModelsGroupByStep(
+				companyId, DSLQueryFactoryUtil.selectDistinct(_table), groupId,
+				objectDefinition, objectEntryId, objectRelationshipId
+			).limit(
+				start, end
+			));
 	}
 
 	@Override
@@ -205,18 +203,18 @@ public class SystemObjectMtoMObjectRelatedModelsProviderImpl
 			long objectEntryId, long objectRelationshipId)
 		throws PortalException {
 
-		DSLQuery dslQuery = _getUnrelatedModelsGroupByStep(
-			companyId,
-			DSLQueryFactoryUtil.countDistinct(
-				_table.getColumn(
-					_objectDefinition.getPKObjectFieldDBColumnName())),
-			groupId, objectDefinition, objectEntryId, objectRelationshipId);
-
 		PersistedModelLocalService persistedModelLocalService =
 			PersistedModelLocalServiceRegistryUtil.
 				getPersistedModelLocalService(objectDefinition.getClassName());
 
-		return persistedModelLocalService.dslQueryCount(dslQuery);
+		return persistedModelLocalService.dslQueryCount(
+			_getUnrelatedModelsGroupByStep(
+				companyId,
+				DSLQueryFactoryUtil.countDistinct(
+					_table.getColumn(
+						_objectDefinition.getPKObjectFieldDBColumnName())),
+				groupId, objectDefinition, objectEntryId,
+				objectRelationshipId));
 	}
 
 	private GroupByStep _getGroupByStep(
