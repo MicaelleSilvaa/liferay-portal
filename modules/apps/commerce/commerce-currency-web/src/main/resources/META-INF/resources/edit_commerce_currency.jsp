@@ -87,6 +87,7 @@ boolean primary = BeanParamUtil.getBoolean(commerceCurrency, request, "primary")
 
 				<aui:button-row>
 					<aui:button cssClass="btn-lg" type="submit" />
+
 					<aui:button cssClass="btn-lg" href="<%= portletDisplay.getURLBack() %>" type="cancel" />
 				</aui:button-row>
 			</div>
