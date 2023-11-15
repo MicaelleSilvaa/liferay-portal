@@ -235,12 +235,12 @@ SiteNavigationMenu siteNavigationMenu = siteNavigationMenuDisplayContext.getSite
 </liferay-frontend:edit-form>
 
 <aui:script require="frontend-js-web/index as frontendJsWeb">
-	var {delegate} = frontendJsWeb;
+	var {debounce, delegate} = frontendJsWeb;
 
 	var form = document.<portlet:namespace />fm;
 
-	form.addEventListener('change', <portlet:namespace />resetPreview);
-	form.addEventListener('select', <portlet:namespace />resetPreview);
+	form.addEventListener('change', debounce(<portlet:namespace />resetPreview, 200));
+	form.addEventListener('select', debounce(<portlet:namespace />resetPreview, 200));
 
 	function <portlet:namespace />resetPreview() {
 		var displayDepthSelect = Liferay.Util.getFormElement(form, 'displayDepth');
@@ -351,7 +351,7 @@ SiteNavigationMenu siteNavigationMenu = siteNavigationMenuDisplayContext.getSite
 						rootMenuItemNameSpan.innerText =
 							selectedItem.selectSiteNavigationMenuItemName;
 
-						<portlet:namespace />resetPreview();
+						debounce(<portlet:namespace />resetPreview(), 200);
 					}
 				},
 				selectEventName:
@@ -396,7 +396,7 @@ SiteNavigationMenu siteNavigationMenu = siteNavigationMenuDisplayContext.getSite
 
 						removeSiteNavigationMenu.classList.toggle('hide');
 
-						<portlet:namespace />resetPreview();
+						debounce(<portlet:namespace />resetPreview(), 200);
 					}
 				},
 				selectEventName:
@@ -428,7 +428,7 @@ SiteNavigationMenu siteNavigationMenu = siteNavigationMenuDisplayContext.getSite
 
 			removeSiteNavigationMenu.classList.toggle('hide');
 
-			<portlet:namespace />resetPreview();
+			debounce(<portlet:namespace />resetPreview(), 200);
 		});
 	}
 
@@ -503,7 +503,7 @@ SiteNavigationMenu siteNavigationMenu = siteNavigationMenuDisplayContext.getSite
 
 				removeSiteNavigationMenu.classList.add('hide');
 
-				<portlet:namespace />resetPreview();
+				debounce(<portlet:namespace />resetPreview(), 200);
 			}
 		);
 	}
