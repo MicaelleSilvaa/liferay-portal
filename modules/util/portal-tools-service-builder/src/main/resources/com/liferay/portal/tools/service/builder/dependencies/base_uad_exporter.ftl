@@ -51,7 +51,11 @@ public abstract class Base${entity.name}UADExporter extends DynamicQueryUADExpor
 		<#list entity.UADEntityColumns as entityColumn>
 			<#if !stringUtil.equals(entityColumn.type, "Blob") || !entityColumn.lazy>
 				sb.append("<column><column-name>${entityColumn.name}</column-name><column-value><![CDATA[");
-				sb.append(${entity.variableName}.get${entityColumn.methodName}());
+				<#if entityColumn.isPrimary() || entityColumn.isUADUserId()>
+					sb.append("0");
+				<#else>
+					sb.append(${entity.variableName}.get${entityColumn.methodName}());
+				</#if>
 				sb.append("]]></column-value></column>");
 			</#if>
 		</#list>
