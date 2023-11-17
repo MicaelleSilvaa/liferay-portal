@@ -757,15 +757,17 @@ public class ObjectRelationshipLocalServiceImpl
 			objectRelationshipPersistence.findByPrimaryKey(
 				objectRelationshipId);
 
-		if (objectRelationship.isReverse()) {
-			throw new ObjectRelationshipReverseException(
-				"Reverse object relationships cannot be updated");
-		}
-
 		_validateExternalReferenceCode(
 			externalReferenceCode, objectRelationshipId,
 			objectRelationship.getCompanyId(),
 			objectRelationship.getObjectDefinitionId1());
+
+		if (objectRelationship.isReverse()) {
+			objectRelationship.setExternalReferenceCode(externalReferenceCode);
+
+			return objectRelationshipPersistence.update(objectRelationship);
+		}
+
 		_validateParameterObjectFieldId(
 			_objectDefinitionPersistence.findByPrimaryKey(
 				objectRelationship.getObjectDefinitionId1()),
