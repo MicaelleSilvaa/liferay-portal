@@ -4,7 +4,8 @@
 		"@clayui/charts": "3.65.0",
 		"@clayui/icon": "3.56.0",
 		"@clayui/table": "3.56.0",
-		"axios": "0.24.0",
+		"axios": "1.6.2",
+		"classnames": "2.3.1",
 		"react": "16.12.0",
 		"react-dom": "16.12.0",
 		"yo": "^4.3.1"
