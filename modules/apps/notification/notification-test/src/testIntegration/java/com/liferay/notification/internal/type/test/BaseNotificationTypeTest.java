@@ -17,13 +17,16 @@ import com.liferay.notification.service.NotificationRecipientSettingLocalService
 import com.liferay.notification.service.NotificationTemplateLocalService;
 import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.definition.notification.term.util.ObjectDefinitionNotificationTermUtil;
 import com.liferay.object.field.builder.BooleanObjectFieldBuilder;
 import com.liferay.object.field.builder.DateObjectFieldBuilder;
+import com.liferay.object.field.builder.DateTimeObjectFieldBuilder;
 import com.liferay.object.field.builder.IntegerObjectFieldBuilder;
 import com.liferay.object.field.builder.PicklistObjectFieldBuilder;
 import com.liferay.object.field.builder.TextObjectFieldBuilder;
+import com.liferay.object.field.setting.builder.ObjectFieldSettingBuilder;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
@@ -110,6 +113,18 @@ public class BaseNotificationTypeTest {
 				return simpleDateFormat.format(RandomTestUtil.nextDate());
 			}
 		).put(
+			"dateTimeObjectField",
+			() -> {
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+					"yyyy-MM-dd 00:00:00.0");
+
+				return simpleDateFormat.format(RandomTestUtil.nextDate());
+			}
+		).put(
+			"emailTextObjectField",
+			StringUtil.toLowerCase(RandomTestUtil.randomString()) +
+				"@liferay.com"
+		).put(
 			"integerObjectField", RandomTestUtil.nextInt()
 		).put(
 			"picklistObjectField",
@@ -128,6 +143,11 @@ public class BaseNotificationTypeTest {
 		).build();
 
 		user1 = TestPropsValues.getUser();
+
+		dtoConverterContext = new DefaultDTOConverterContext(
+			false, Collections.emptyMap(),
+			BaseNotificationTypeTest._dtoConverterRegistry, null,
+			LocaleUtil.getDefault(), null, user1);
 
 		ListType prefixListType = _listTypeLocalService.getListType(
 			"dr", ListTypeConstants.CONTACT_PREFIX);
@@ -175,6 +195,22 @@ public class BaseNotificationTypeTest {
 							RandomTestUtil.randomString())
 					).name(
 						"dateObjectField"
+					).build(),
+					new DateTimeObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						"dateTimeObjectField"
+					).objectFieldSettings(
+						Collections.singletonList(
+							new ObjectFieldSettingBuilder(
+							).name(
+								ObjectFieldSettingConstants.NAME_TIME_STORAGE
+							).value(
+								ObjectFieldSettingConstants.
+									VALUE_USE_INPUT_AS_ENTERED
+							).build())
 					).build(),
 					new IntegerObjectFieldBuilder(
 					).labelMap(
@@ -377,6 +413,8 @@ public class BaseNotificationTypeTest {
 			Arrays.asList(
 				getTermName("booleanObjectField"),
 				getTermName("dateObjectField"),
+				getTermName("dateTimeObjectField"),
+				getTermName("emailTextObjectField"),
 				getTermName("integerObjectField"),
 				getTermName("picklistObjectField"),
 				getTermName("textObjectField"),
@@ -396,11 +434,7 @@ public class BaseNotificationTypeTest {
 	protected static ObjectDefinition childObjectDefinition;
 
 	protected static LinkedHashMap<String, Object> childObjectEntryValues;
-	protected static DTOConverterContext dtoConverterContext =
-		new DefaultDTOConverterContext(
-			false, Collections.emptyMap(),
-			BaseNotificationTypeTest._dtoConverterRegistry, null,
-			LocaleUtil.getDefault(), null, BaseNotificationTypeTest.user1);
+	protected static DTOConverterContext dtoConverterContext;
 
 	@DeleteAfterTestRun
 	protected static ObjectRelationship objectRelationship;
