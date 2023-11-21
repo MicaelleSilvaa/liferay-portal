@@ -105,7 +105,7 @@ public class BaseNotificationTypeTest {
 			"dateObjectField",
 			() -> {
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-					"yyyy-MM-dd 00:00:00.0");
+					"yyyy-MM-dd");
 
 				return simpleDateFormat.format(RandomTestUtil.nextDate());
 			}
