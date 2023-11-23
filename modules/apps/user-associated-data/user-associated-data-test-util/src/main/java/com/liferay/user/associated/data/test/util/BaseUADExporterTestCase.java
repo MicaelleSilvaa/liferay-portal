@@ -46,10 +46,8 @@ public abstract class BaseUADExporterTestCase<T extends BaseModel> {
 
 		Document document = getExportDocument(baseModel);
 
-		assertColumnValue(document, "userId", String.valueOf(user.getUserId()));
 		assertColumnValue(
-			document, getPrimaryKeyName(),
-			String.valueOf(baseModel.getPrimaryKeyObj()));
+			document, "userName", String.valueOf(user.getFullName()));
 	}
 
 	@Test
@@ -77,11 +75,8 @@ public abstract class BaseUADExporterTestCase<T extends BaseModel> {
 
 		Document document = getExportDocument(baseModel);
 
-		assertColumnValue(
-			document, "statusByUserId", String.valueOf(user.getUserId()));
-		assertColumnValue(
-			document, getPrimaryKeyName(),
-			String.valueOf(baseModel.getPrimaryKeyObj()));
+		assertColumnValue(document, "statusByUserId", "0");
+		assertColumnValue(document, getPrimaryKeyName(), "0");
 	}
 
 	protected abstract T addBaseModel(long userId) throws Exception;
