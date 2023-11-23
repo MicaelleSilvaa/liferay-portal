@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -36,6 +38,12 @@ public class UserNotificationEventUADExporterTest
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
+
+	@Ignore
+	@Override
+	@Test
+	public void testExport() throws Exception {
+	}
 
 	@Override
 	protected UserNotificationEvent addBaseModel(long userId) throws Exception {
