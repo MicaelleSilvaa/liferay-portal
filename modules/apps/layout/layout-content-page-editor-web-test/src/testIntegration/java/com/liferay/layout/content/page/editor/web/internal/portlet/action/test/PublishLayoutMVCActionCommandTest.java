@@ -16,19 +16,26 @@ import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.layout.util.structure.DeletedLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
+import com.liferay.portal.kernel.search.Document;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.search.test.util.IndexerFixture;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -36,6 +43,7 @@ import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -172,6 +180,57 @@ public class PublishLayoutMVCActionCommandTest {
 		Assert.assertNotNull(
 			layoutStructure.getLayoutStructureItem(
 				layoutStructureItem3.getItemId()));
+	}
+
+	@Test
+	public void testLayoutContentIsIndexedAfterPublishing() throws Exception {
+		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
+
+		Assert.assertFalse(layout.isPublished());
+
+		Layout draftLayout = layout.fetchDraftLayout();
+
+		Assert.assertNotNull(draftLayout);
+
+		long segmentsExperienceId =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				draftLayout.getPlid());
+
+		FragmentEntryLink fragmentEntryLink =
+			ContentLayoutTestUtil.addFragmentEntryLinkToLayout(
+				"{}", draftLayout, segmentsExperienceId);
+
+		String keywords = fragmentEntryLink.getHtml();
+
+		Assert.assertTrue(keywords, Validator.isNotNull(keywords));
+
+		IndexerFixture<Layout> layoutIndexerFixture = new IndexerFixture<>(
+			Layout.class);
+
+		layoutIndexerFixture.searchNoOne(keywords);
+
+		ContentLayoutTestUtil.publishLayout(draftLayout, layout);
+
+		layout = _layoutLocalService.getLayout(layout.getPlid());
+
+		Assert.assertTrue(layout.isPublished());
+
+		Locale locale = LocaleUtil.getSiteDefault();
+
+		Document document = layoutIndexerFixture.searchOnlyOne(
+			keywords, locale);
+
+		Assert.assertNotNull(document);
+
+		String content = document.get(
+			Field.getLocalizedName(locale, Field.CONTENT));
+
+		Assert.assertTrue(
+			content, StringUtil.contains(content, keywords, StringPool.BLANK));
+
+		Assert.assertEquals(
+			document.get(Field.ENTRY_CLASS_PK),
+			String.valueOf(layout.getPlid()));
 	}
 
 	private FragmentEntryLink _addPortletToLayout(Layout layout)
