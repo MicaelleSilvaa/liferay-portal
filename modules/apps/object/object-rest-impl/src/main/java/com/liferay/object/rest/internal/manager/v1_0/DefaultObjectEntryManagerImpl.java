@@ -12,7 +12,6 @@ import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.entry.util.ObjectEntryDTOConverterUtil;
-import com.liferay.object.entry.util.ObjectEntryThreadLocal;
 import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.field.business.type.ObjectFieldBusinessTypeRegistry;
 import com.liferay.object.model.ObjectAction;
@@ -49,7 +48,6 @@ import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -1235,58 +1233,6 @@ public class DefaultObjectEntryManagerImpl
 				objectEntryId, null));
 	}
 
-	private boolean _hasRelatedObjectEntries(
-			ObjectDefinition objectDefinition,
-			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
-		throws PortalException {
-
-		for (ObjectRelationship objectRelationship :
-				_objectRelationshipLocalService.getObjectRelationships(
-					objectDefinition.getObjectDefinitionId(),
-					ObjectRelationshipConstants.DELETION_TYPE_PREVENT, false)) {
-
-			ObjectDefinition objectDefinition2 =
-				_objectDefinitionLocalService.getObjectDefinition(
-					objectRelationship.getObjectDefinitionId2());
-
-			if (!objectDefinition2.isActive()) {
-				continue;
-			}
-
-			ObjectRelatedModelsProvider objectRelatedModelsProvider =
-				_objectRelatedModelsProviderRegistry.
-					getObjectRelatedModelsProvider(
-						objectDefinition2.getClassName(),
-						objectDefinition2.getCompanyId(),
-						objectRelationship.getType());
-
-			int count = 0;
-
-			try {
-				ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(
-					true);
-
-				count = objectRelatedModelsProvider.getRelatedModelsCount(
-					serviceBuilderObjectEntry.getGroupId(),
-					objectRelationship.getObjectRelationshipId(),
-					serviceBuilderObjectEntry.getPrimaryKey(), null);
-			}
-			catch (Exception exception) {
-				_log.error(exception);
-			}
-			finally {
-				ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(
-					false);
-			}
-
-			if (count > 0) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	private boolean _isManyToOneObjectRelationship(
 		ObjectDefinition objectDefinition,
 		ObjectRelationship objectRelationship,
@@ -1434,18 +1380,9 @@ public class DefaultObjectEntryManagerImpl
 				actions
 			).<String, Map<String, String>>put(
 				"delete",
-				() -> {
-					if (_hasRelatedObjectEntries(
-							objectDefinition, serviceBuilderObjectEntry)) {
-
-						return null;
-					}
-
-					return _addAction(
-						ActionKeys.DELETE, "deleteObjectEntry",
-						serviceBuilderObjectEntry,
-						dtoConverterContext.getUriInfo());
-				}
+				_addAction(
+					ActionKeys.DELETE, "deleteObjectEntry",
+					serviceBuilderObjectEntry, dtoConverterContext.getUriInfo())
 			).put(
 				"get",
 				_addAction(
