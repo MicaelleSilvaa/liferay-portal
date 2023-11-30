@@ -66,7 +66,6 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Localization;
-import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -86,7 +85,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -688,7 +686,7 @@ public class ObjectDefinitionResourceImpl
 			}
 		}
 
-		// Object Relationship must be created before Object Layout
+		// Object relationship must be created before object layout
 
 		if (objectRelationships != null) {
 			Set<String> deleteObjectRelationshipsNames =
@@ -722,8 +720,7 @@ public class ObjectDefinitionResourceImpl
 					contextUser
 				).build();
 
-			Map<String, Boolean> updateReverseObjectRelationshipMap =
-				new HashMap<>();
+			Set<String> updateReverseObjectRelationshipNames = new HashSet<>();
 
 			for (ObjectRelationship objectRelationship : objectRelationships) {
 				com.liferay.object.model.ObjectRelationship
@@ -743,8 +740,7 @@ public class ObjectDefinitionResourceImpl
 				}
 
 				if (serviceBuilderObjectRelationship != null) {
-					if (MapUtil.getBoolean(
-							updateReverseObjectRelationshipMap,
+					if (updateReverseObjectRelationshipNames.contains(
 							serviceBuilderObjectRelationship.getName())) {
 
 						serviceBuilderObjectRelationship =
@@ -763,8 +759,8 @@ public class ObjectDefinitionResourceImpl
 							ObjectRelationshipConstants.TYPE_MANY_TO_MANY) &&
 						serviceBuilderObjectRelationship.isSelf()) {
 
-						updateReverseObjectRelationshipMap.putIfAbsent(
-							serviceBuilderObjectRelationship.getName(), true);
+						updateReverseObjectRelationshipNames.add(
+							serviceBuilderObjectRelationship.getName());
 					}
 
 					continue;
@@ -782,8 +778,8 @@ public class ObjectDefinitionResourceImpl
 						objectRelationship.getObjectDefinitionId1(),
 						objectRelationship.getObjectDefinitionId2())) {
 
-					updateReverseObjectRelationshipMap.putIfAbsent(
-						objectRelationship.getName(), true);
+					updateReverseObjectRelationshipNames.add(
+						objectRelationship.getName());
 				}
 
 				if (accountEntryRestrictedObjectRelationshipsNames.contains(
