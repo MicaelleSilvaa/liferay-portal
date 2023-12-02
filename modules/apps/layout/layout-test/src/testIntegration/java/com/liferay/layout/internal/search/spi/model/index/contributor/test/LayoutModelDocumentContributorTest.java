@@ -423,7 +423,6 @@ public class LayoutModelDocumentContributorTest {
 
 		ddmFormField.setDataType("text");
 		ddmFormField.setIndexType("text");
-		ddmFormField.setLocalizable(true);
 
 		LocalizedValue localizedValue = new LocalizedValue(LocaleUtil.US);
 
@@ -431,6 +430,8 @@ public class LayoutModelDocumentContributorTest {
 			LocaleUtil.US, RandomTestUtil.randomString(10));
 
 		ddmFormField.setLabel(localizedValue);
+
+		ddmFormField.setLocalizable(true);
 
 		return ddmFormField;
 	}
@@ -459,10 +460,9 @@ public class LayoutModelDocumentContributorTest {
 		portletPreferences.setValue(
 			"articleId", String.valueOf(journalArticle.getArticleId()));
 		portletPreferences.setValue(
-			"groupId", String.valueOf(journalArticle.getGroupId()));
-
-		portletPreferences.setValue(
 			"assetEntryId", String.valueOf(assetEntry.getEntryId()));
+		portletPreferences.setValue(
+			"groupId", String.valueOf(journalArticle.getGroupId()));
 
 		portletPreferences.store();
 
