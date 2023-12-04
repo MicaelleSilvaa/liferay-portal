@@ -36,6 +36,7 @@ import com.liferay.object.constants.ObjectFieldValidationConstants;
 import com.liferay.object.constants.ObjectFilterConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.entry.util.ObjectEntryThreadLocal;
+import com.liferay.object.exception.DuplicateObjectEntryExternalReferenceCodeException;
 import com.liferay.object.exception.NoSuchObjectFieldException;
 import com.liferay.object.exception.ObjectDefinitionScopeException;
 import com.liferay.object.exception.ObjectEntryValuesException;
@@ -267,10 +268,11 @@ public class ObjectEntryLocalServiceImpl
 
 		ObjectEntry objectEntry = objectEntryPersistence.create(objectEntryId);
 
-		_setExternalReferenceCode(objectEntry, values);
-
 		objectEntry.setGroupId(groupId);
 		objectEntry.setCompanyId(user.getCompanyId());
+
+		_setExternalReferenceCode(objectEntry, values);
+
 		objectEntry.setUserId(user.getUserId());
 		objectEntry.setUserName(user.getFullName());
 		objectEntry.setCreateDate(new Date());
@@ -3668,8 +3670,7 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	private void _setExternalReferenceCode(
-			ObjectEntry objectEntry, Map<String, Serializable> values)
-		throws PortalException {
+		ObjectEntry objectEntry, Map<String, Serializable> values) {
 
 		for (Map.Entry<String, Serializable> entry : values.entrySet()) {
 			if (StringUtil.equals(entry.getKey(), "externalReferenceCode")) {
@@ -3681,8 +3682,8 @@ public class ObjectEntryLocalServiceImpl
 
 				_validateExternalReferenceCode(
 					externalReferenceCode, objectEntry.getCompanyId(),
-					objectEntry.getObjectDefinitionId(),
-					objectEntry.getObjectEntryId());
+					objectEntry.getGroupId(), objectEntry.getObjectEntryId(),
+					objectEntry.isNew());
 
 				objectEntry.setExternalReferenceCode(externalReferenceCode);
 			}
@@ -3853,18 +3854,19 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	private void _validateExternalReferenceCode(
-			String externalReferenceCode, long companyId,
-			long objectDefinitionId, long objectEntryId)
-		throws PortalException {
+		String externalReferenceCode, long companyId, long groupId,
+		long objectEntryId, boolean newObjectEntry) {
 
-		ObjectEntry objectEntry = objectEntryPersistence.fetchByERC_C_ODI(
-			externalReferenceCode, companyId, objectDefinitionId);
+		ObjectEntry ercObjectEntries = objectEntryPersistence.fetchByERC_G_C(
+			externalReferenceCode, groupId, companyId);
 
-		if ((objectEntry != null) &&
-			(objectEntry.getObjectEntryId() != objectEntryId)) {
+		if (newObjectEntry && (ercObjectEntries != null)) {
+			throw new DuplicateObjectEntryExternalReferenceCodeException();
+		}
+		else if ((ercObjectEntries != null) &&
+				 (ercObjectEntries.getObjectEntryId() != objectEntryId)) {
 
-			throw new ObjectEntryValuesException.MustNotBeDuplicate(
-				externalReferenceCode);
+			throw new DuplicateObjectEntryExternalReferenceCodeException();
 		}
 	}
 
