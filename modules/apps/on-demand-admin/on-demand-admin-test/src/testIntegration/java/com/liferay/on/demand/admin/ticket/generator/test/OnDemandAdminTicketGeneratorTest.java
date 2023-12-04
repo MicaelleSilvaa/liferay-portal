@@ -62,7 +62,7 @@ public class OnDemandAdminTicketGeneratorTest {
 		Company company = CompanyTestUtil.addCompany();
 
 		Ticket ticket = _onDemandAdminTicketGenerator.generate(
-			company, null, user.getUserId());
+			company, null, user);
 
 		Assert.assertEquals(
 			OnDemandAdminConstants.TICKET_TYPE_ON_DEMAND_ADMIN_LOGIN,
@@ -87,7 +87,7 @@ public class OnDemandAdminTicketGeneratorTest {
 		Company company = CompanyTestUtil.addCompany();
 		User user = UserTestUtil.addUser();
 
-		_onDemandAdminTicketGenerator.generate(company, null, user.getUserId());
+		_onDemandAdminTicketGenerator.generate(company, null, user);
 	}
 
 	@Inject
