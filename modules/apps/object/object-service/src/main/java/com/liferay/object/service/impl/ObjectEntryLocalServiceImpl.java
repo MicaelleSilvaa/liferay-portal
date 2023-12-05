@@ -3866,7 +3866,7 @@ public class ObjectEntryLocalServiceImpl
 			throw new DuplicateObjectEntryExternalReferenceCodeException(
 				StringBundler.concat(
 					"Duplicate object entry with external reference code ",
-					externalReferenceCode, " and object definition id ",
+					externalReferenceCode, " and object definition ID ",
 					objectDefinitionId));
 		}
 	}
