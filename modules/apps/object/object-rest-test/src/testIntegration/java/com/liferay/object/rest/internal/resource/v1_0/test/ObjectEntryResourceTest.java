@@ -307,60 +307,6 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
-	public void testAddCompanyScopedObjectEntryErcMustNotBeDuplicated()
-		throws Exception {
-
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_1
-				).toString(),
-				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
-
-		Assert.assertEquals(
-			400,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_1
-				).toString(),
-				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
-	}
-
-	@Test
-	public void testAddSiteScopedObjectEntryErcMustNotBeDuplicated()
-		throws Exception {
-
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_1
-				).toString(),
-				_getEndpoint(
-					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
-				Http.Method.POST));
-
-		Assert.assertEquals(
-			400,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_1
-				).toString(),
-				_getEndpoint(
-					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
-				Http.Method.POST));
-	}
-
-	@Test
 	public void testFilterByComparisonOperatorsObjectEntriesByRelatesObjectEntriesFields()
 		throws Exception {
 
@@ -4381,6 +4327,55 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
+	public void testPostCustomObjectEntryWithDuplicateExternalReferenceCode()
+		throws Exception {
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_1
+				).toString(),
+				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
+
+		Assert.assertEquals(
+			400,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_1
+				).toString(),
+				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_1
+				).toString(),
+				_getEndpoint(
+					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
+				Http.Method.POST));
+
+		Assert.assertEquals(
+			400,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_1
+				).toString(),
+				_getEndpoint(
+					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
+				Http.Method.POST));
+	}
+
+	@Test
 	public void testPostCustomObjectEntryWithEmptyNestedCustomObjectEntriesInOneToManyRelationship()
 		throws Exception {
 
@@ -5041,42 +5036,6 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
-	public void testPutCompanyScopedObjectEntryErcMustNotBeDuplicated()
-		throws Exception {
-
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_1
-				).toString(),
-				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
-
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_2
-				).toString(),
-				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
-
-		Assert.assertEquals(
-			400,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					"externalReferenceCode", _ERC_VALUE_2
-				).toString(),
-				StringBundler.concat(
-					_objectDefinition1.getRESTContextPath(),
-					"/by-external-reference-code/", _ERC_VALUE_1),
-				Http.Method.PUT));
-	}
-
-	@Test
 	public void testPutCustomObjectEntryUnlinkNestedCustomObjectEntries()
 		throws Exception {
 
@@ -5147,6 +5106,79 @@ public class ObjectEntryResourceTest {
 
 		_testPutCustomObjectEntryUnlinkNestedCustomObjectEntriesByExternalReferenceCode(
 			false);
+	}
+
+	@Test
+	public void testPutCustomObjectEntryWithDuplicateExternalReferenceCode()
+		throws Exception {
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_1
+				).toString(),
+				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_2
+				).toString(),
+				_objectDefinition1.getRESTContextPath(), Http.Method.POST));
+
+		Assert.assertEquals(
+			400,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					"externalReferenceCode", _ERC_VALUE_2
+				).toString(),
+				StringBundler.concat(
+					_objectDefinition1.getRESTContextPath(),
+					"/by-external-reference-code/", _ERC_VALUE_1),
+				Http.Method.PUT));
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_1
+				).toString(),
+				_getEndpoint(
+					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
+				Http.Method.POST));
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+				).put(
+					"externalReferenceCode", _ERC_VALUE_2
+				).toString(),
+				_getEndpoint(
+					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
+				Http.Method.POST));
+
+		Assert.assertEquals(
+			400,
+			HTTPTestUtil.invokeToHttpCode(
+				JSONUtil.put(
+					"externalReferenceCode", _ERC_VALUE_2
+				).toString(),
+				StringBundler.concat(
+					_getEndpoint(
+						TestPropsValues.getGroupId(),
+						_siteScopedObjectDefinition1),
+					"/by-external-reference-code/", _ERC_VALUE_1),
+				Http.Method.PUT));
 	}
 
 	@Test
@@ -5396,48 +5428,6 @@ public class ObjectEntryResourceTest {
 		_assertObjectEntryField(
 			(JSONObject)nestedObjectEntriesJSONArray.get(0),
 			_OBJECT_FIELD_NAME_2, _NEW_OBJECT_FIELD_VALUE_1);
-	}
-
-	@Test
-	public void testPutSiteScopedObjectEntryErcMustNotBeDuplicated()
-		throws Exception {
-
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_1
-				).toString(),
-				_getEndpoint(
-					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
-				Http.Method.POST));
-
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
-				).put(
-					"externalReferenceCode", _ERC_VALUE_2
-				).toString(),
-				_getEndpoint(
-					TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
-				Http.Method.POST));
-
-		Assert.assertEquals(
-			400,
-			HTTPTestUtil.invokeToHttpCode(
-				JSONUtil.put(
-					"externalReferenceCode", _ERC_VALUE_2
-				).toString(),
-				StringBundler.concat(
-					_getEndpoint(
-						TestPropsValues.getGroupId(),
-						_siteScopedObjectDefinition1),
-					"/by-external-reference-code/", _ERC_VALUE_1),
-				Http.Method.PUT));
 	}
 
 	private void _addModelResourcePermissions(
