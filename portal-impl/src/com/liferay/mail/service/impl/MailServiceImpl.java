@@ -79,10 +79,10 @@ public class MailServiceImpl implements IdentifiableOSGiService, MailService {
 	public Session getSession(Account account) {
 		Session session = Session.getInstance(_getProperties(account));
 
+		_debugLogProperties(session.getProperties());
+
 		if (_log.isDebugEnabled()) {
 			session.setDebug(true);
-
-			_debugLogProperties(session.getProperties());
 		}
 
 		return session;
@@ -259,10 +259,10 @@ public class MailServiceImpl implements IdentifiableOSGiService, MailService {
 			session = Session.getInstance(properties);
 		}
 
+		_debugLogProperties(properties);
+
 		if (_log.isDebugEnabled()) {
 			session.setDebug(true);
-
-			_debugLogProperties(properties);
 		}
 
 		if (!oAuth2AuthEnable) {
