@@ -5,17 +5,13 @@
 
 package com.liferay.notification.internal.type;
 
-import com.liferay.document.library.kernel.model.DLFileEntry;
-import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldValue;
 import com.liferay.info.item.InfoItemFieldValues;
 import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.mail.kernel.model.MailMessage;
-import com.liferay.mail.kernel.service.MailService;
 import com.liferay.notification.constants.NotificationConstants;
-import com.liferay.notification.constants.NotificationPortletKeys;
 import com.liferay.notification.constants.NotificationQueueEntryConstants;
 import com.liferay.notification.constants.NotificationTemplateConstants;
 import com.liferay.notification.context.NotificationContext;
@@ -25,14 +21,10 @@ import com.liferay.notification.model.NotificationQueueEntryAttachment;
 import com.liferay.notification.model.NotificationRecipient;
 import com.liferay.notification.model.NotificationRecipientSetting;
 import com.liferay.notification.model.NotificationTemplate;
-import com.liferay.notification.model.NotificationTemplateAttachment;
 import com.liferay.notification.service.NotificationQueueEntryAttachmentLocalService;
-import com.liferay.notification.service.NotificationTemplateAttachmentLocalService;
 import com.liferay.notification.type.BaseNotificationType;
 import com.liferay.notification.type.NotificationType;
 import com.liferay.notification.util.NotificationRecipientSettingUtil;
-import com.liferay.object.model.ObjectField;
-import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -42,16 +34,13 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.EmailAddressValidator;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
-import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.template.StringTemplateResource;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
@@ -62,7 +51,6 @@ import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.auth.EmailAddressValidatorFactory;
@@ -175,9 +163,6 @@ public class EmailNotificationType extends BaseNotificationType {
 		siteDefaultLocale = portal.getSiteDefaultLocale(groupId);
 
 		userLocale = user.getLocale();
-
-		notificationContext.setFileEntryIds(
-			_getFileEntryIds(user.getCompanyId(), notificationContext));
 
 		NotificationTemplate notificationTemplate =
 			notificationContext.getNotificationTemplate();
@@ -527,79 +512,6 @@ public class EmailNotificationType extends BaseNotificationType {
 			StringUtil.merge(emailAddresses), notificationContext);
 	}
 
-	private List<Long> _getFileEntryIds(
-			long companyId, NotificationContext notificationContext)
-		throws PortalException {
-
-		Group group = _groupLocalService.getCompanyGroup(companyId);
-
-		Repository repository = _getRepository(group.getGroupId());
-
-		if (repository == null) {
-			return new ArrayList<>();
-		}
-
-		List<Long> fileEntryIds = new ArrayList<>();
-
-		NotificationTemplate notificationTemplate =
-			notificationContext.getNotificationTemplate();
-
-		for (NotificationTemplateAttachment notificationTemplateAttachment :
-				_notificationTemplateAttachmentLocalService.
-					getNotificationTemplateAttachments(
-						notificationTemplate.getNotificationTemplateId())) {
-
-			ObjectField objectField = _objectFieldLocalService.fetchObjectField(
-				notificationTemplateAttachment.getObjectFieldId());
-
-			DLFileEntry dlFileEntry = _dlFileEntryLocalService.fetchDLFileEntry(
-				MapUtil.getLong(
-					notificationContext.getTermValues(),
-					objectField.getName()));
-
-			if (dlFileEntry == null) {
-				continue;
-			}
-
-			FileEntry fileEntry = _portletFileRepository.addPortletFileEntry(
-				null, repository.getGroupId(),
-				userLocalService.getGuestUserId(companyId),
-				NotificationTemplate.class.getName(), 0,
-				NotificationPortletKeys.NOTIFICATION_TEMPLATES,
-				repository.getDlFolderId(), dlFileEntry.getContentStream(),
-				_portletFileRepository.getUniqueFileName(
-					group.getGroupId(), repository.getDlFolderId(),
-					dlFileEntry.getFileName()),
-				dlFileEntry.getMimeType(), false);
-
-			fileEntryIds.add(fileEntry.getFileEntryId());
-		}
-
-		return fileEntryIds;
-	}
-
-	private Repository _getRepository(long groupId) {
-		Repository repository = _portletFileRepository.fetchPortletRepository(
-			groupId, NotificationPortletKeys.NOTIFICATION_TEMPLATES);
-
-		if (repository != null) {
-			return repository;
-		}
-
-		try {
-			return _portletFileRepository.addPortletRepository(
-				groupId, NotificationPortletKeys.NOTIFICATION_TEMPLATES,
-				new ServiceContext());
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException);
-			}
-
-			return null;
-		}
-	}
-
 	private String _getValidEmailAddresses(
 		long companyId, String emailAddresses) {
 
@@ -669,27 +581,11 @@ public class EmailNotificationType extends BaseNotificationType {
 			"(?:\\w(?:[\\w-]*\\w)?\\.)+(\\w(?:[\\w-]*\\w))");
 
 	@Reference
-	private DLFileEntryLocalService _dlFileEntryLocalService;
-
-	@Reference
-	private GroupLocalService _groupLocalService;
-
-	@Reference
 	private InfoItemServiceRegistry _infoItemServiceRegistry;
-
-	@Reference
-	private MailService _mailService;
 
 	@Reference
 	private NotificationQueueEntryAttachmentLocalService
 		_notificationQueueEntryAttachmentLocalService;
-
-	@Reference
-	private NotificationTemplateAttachmentLocalService
-		_notificationTemplateAttachmentLocalService;
-
-	@Reference
-	private ObjectFieldLocalService _objectFieldLocalService;
 
 	@Reference
 	private PersistedModelLocalServiceRegistry
