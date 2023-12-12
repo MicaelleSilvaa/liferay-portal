@@ -10,7 +10,6 @@ import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
 
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
@@ -66,6 +65,7 @@ import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.EntityExtensi
 import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.NestedFieldsWriterInterceptor;
 import com.liferay.portal.vulcan.internal.jaxrs.writer.interceptor.PageEntityExtensionWriterInterceptor;
 import com.liferay.portal.vulcan.internal.param.converter.provider.DateParamConverterProvider;
+import com.liferay.portal.vulcan.pagination.provider.PaginationProvider;
 
 import javax.ws.rs.Priorities;
 import javax.ws.rs.core.Feature;
@@ -160,7 +160,7 @@ public class VulcanFeature implements Feature {
 			_nestedFieldsWriterInterceptor, Priorities.USER - 10);
 
 		featureContext.register(
-			new PaginationContextProvider(_configurationProvider, _portal));
+			new PaginationContextProvider(_paginationProvider, _portal));
 
 		featureContext.register(
 			new SiteParamConverterProvider(
@@ -202,9 +202,6 @@ public class VulcanFeature implements Feature {
 	private ConfigurationAdmin _configurationAdmin;
 
 	@Reference
-	private ConfigurationProvider _configurationProvider;
-
-	@Reference
 	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference(
@@ -225,6 +222,9 @@ public class VulcanFeature implements Feature {
 	private Language _language;
 
 	private NestedFieldsWriterInterceptor _nestedFieldsWriterInterceptor;
+
+	@Reference
+	private PaginationProvider _paginationProvider;
 
 	@Reference
 	private Portal _portal;
