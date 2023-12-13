@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLTypeExtension;
@@ -1163,7 +1164,13 @@ public class GraphQLServletExtender {
 
 		String version = packageNames[packageNames.length - 1];
 
-		return Integer.valueOf(version.replaceAll("\\D", ""));
+		String versionString = version.replaceAll("\\D", "");
+
+		if (Validator.isNull(versionString)) {
+			return 1;
+		}
+
+		return Integer.valueOf(versionString);
 	}
 
 	private boolean _isGraphQLEnabled(String path) throws Exception {
