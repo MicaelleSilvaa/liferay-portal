@@ -234,9 +234,7 @@ portletDisplay.setURLBack(backURL);
 												payload.externalReferenceCode
 											);
 
-											Liferay.Util.navigate(
-												portletURL.toString()
-											);
+											window.location.href = portletURL.toString();
 										});
 									}
 									else {
