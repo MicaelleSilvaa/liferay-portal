@@ -61,6 +61,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MODAL_CONTENT</td>
+	<td>//div[contains(@class,'modal-content')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MODAL_SHOW</td>
 	<td>//div[contains(@role,'dialog')][contains(@class,'modal')][contains(@class,'show')]</td>
 	<td></td>
