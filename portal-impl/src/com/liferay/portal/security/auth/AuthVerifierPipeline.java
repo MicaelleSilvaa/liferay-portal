@@ -348,7 +348,7 @@ public class AuthVerifierPipeline {
 							StringBundler.concat(
 								"Auth verifier ", authVerifierClass.getName(),
 								" returned user ", userId,
-								" who must verify his e-mail address"));
+								" who must verify his email address"));
 					}
 					else {
 						_log.debug(
