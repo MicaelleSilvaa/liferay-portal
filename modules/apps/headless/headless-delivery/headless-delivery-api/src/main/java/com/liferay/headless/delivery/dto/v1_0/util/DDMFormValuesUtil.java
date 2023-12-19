@@ -235,9 +235,9 @@ public class DDMFormValuesUtil {
 		DDMFormField ddmFormField, Locale locale) {
 
 		if (Objects.equals(
-				DDMFormFieldTypeConstants.SEPARATOR, ddmFormField.getType()) ||
+				ddmFormField.getType(), DDMFormFieldTypeConstants.FIELDSET) ||
 			Objects.equals(
-				DDMFormFieldTypeConstants.FIELDSET, ddmFormField.getType())) {
+				ddmFormField.getType(), DDMFormFieldTypeConstants.SEPARATOR)) {
 
 			return null;
 		}
