@@ -288,7 +288,7 @@ public class ComboServlet extends HttpServlet {
 			if (cacheEnabled && (modulePathsString != null) &&
 				!PropsValues.COMBO_CHECK_TIMESTAMP) {
 
-				if (PropsValues.COMBO_MAX_FILES != -1) {
+				if (modulePaths.length <= PropsValues.COMBO_MAX_FILES) {
 					int totalFilesCount = 0;
 
 					List<String> keys = _bytesArrayPortalCache.getKeys();
@@ -303,6 +303,21 @@ public class ComboServlet extends HttpServlet {
 							return;
 						}
 					}
+				}
+				else {
+					httpServletResponse.setHeader(
+						HttpHeaders.CACHE_CONTROL,
+						HttpHeaders.CACHE_CONTROL_NO_CACHE_VALUE);
+
+					httpServletResponse.setStatus(
+						HttpServletResponse.SC_BAD_REQUEST);
+
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"ComboServlet request exceeded maximum file count")
+					}
+
+					return;
 				}
 
 				_bytesArrayPortalCache.put(modulePathsString, bytesArray);
