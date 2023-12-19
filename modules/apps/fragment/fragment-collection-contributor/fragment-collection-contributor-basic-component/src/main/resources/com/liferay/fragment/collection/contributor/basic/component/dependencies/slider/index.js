@@ -1,6 +1,6 @@
-const INTERVAL = 5000;
 const MOVE_LEFT = 'move-left';
 const MOVE_RIGHT = 'move-right';
+const INTERVAL = 5000;
 
 const editMode = layoutMode === 'edit';
 const indicators = [].slice.call(
@@ -8,10 +8,32 @@ const indicators = [].slice.call(
 );
 const items = [].slice.call(fragmentElement.querySelectorAll('.carousel-item'));
 const next = fragmentElement.querySelector('.carousel-control-next');
-const nextItemIndexKey = `${fragmentEntryLinkNamespace}-next-item-index`;
 const prev = fragmentElement.querySelector('.carousel-control-prev');
+const toggleButton = fragmentElement.querySelector('.carousel-toggle-button');
+const toggleButtonIconStart = fragmentElement.querySelector(
+	'.carousel-toggle-icon-start'
+);
+const toggleButtonIconStop = fragmentElement.querySelector(
+	'.carousel-toggle-icon-stop'
+);
+const toggleButtonText = fragmentElement.querySelector('.carousel-toggle-text');
 
+const nextItemIndexKey = `${fragmentEntryLinkNamespace}-next-item-index`;
+
+let intervalId = null;
 let moving = false;
+
+function getNextItemIndex() {
+	return window[nextItemIndexKey] || 0;
+}
+
+function setNextItemIndex(index) {
+	window[nextItemIndexKey] = index;
+}
+
+function getActiveIndicator() {
+	return fragmentElement.querySelector('.carousel-navigation .active');
+}
 
 function activateIndicator(activeItem, nextItem, movement) {
 	if (movement) {
@@ -31,14 +53,6 @@ function activateItem(activeItem, nextItem, movement) {
 		activeItem.classList.remove(movement);
 		nextItem.classList.remove(movement);
 	}
-}
-
-function getActiveIndicator() {
-	return fragmentElement.querySelector('.carousel-navigation .active');
-}
-
-function getNextItemIndex() {
-	return window[nextItemIndexKey] || 0;
 }
 
 function move(movement, index = null) {
@@ -75,29 +89,48 @@ function move(movement, index = null) {
 	}, 600);
 }
 
-function createInterval() {
-	let intervalId = null;
-
-	if (!editMode) {
-		intervalId = setInterval(function () {
-			if (document.contains(items[0])) {
-				move(MOVE_RIGHT);
-			}
-			else {
-				clearInterval(intervalId);
-			}
-		}, INTERVAL);
+function startCarousel() {
+	if (intervalId) {
+		clearInterval(intervalId);
 	}
 
-	return intervalId;
+	intervalId = setInterval(function () {
+		if (document.contains(items[0])) {
+			move(MOVE_RIGHT);
+		}
+		else {
+			stopCarousel();
+		}
+	}, INTERVAL);
+
+	toggleButton.classList.add('playing');
+	toggleButton.classList.remove('stopped');
+	toggleButtonIconStart.classList.add('d-none');
+	toggleButtonIconStop.classList.remove('d-none');
+
+	toggleButtonText.textContent = 'Stop slide rotation';
 }
 
-function setNextItemIndex(index) {
-	window[nextItemIndexKey] = index;
+function stopCarousel() {
+	if (intervalId) {
+		clearInterval(intervalId);
+
+		intervalId = null;
+
+		toggleButton.classList.remove('stopped');
+		toggleButton.classList.remove('playing');
+		toggleButton.classList.add('stopped');
+		toggleButtonIconStart.classList.remove('d-none');
+		toggleButtonIconStop.classList.add('d-none');
+
+		toggleButtonText.textContent = 'Start slide rotation';
+	}
 }
 
 (function () {
-	let intervalId = createInterval();
+	if (!editMode) {
+		startCarousel();
+	}
 
 	if (getNextItemIndex() < items.length) {
 		const activeItem = fragmentElement.querySelector(
@@ -110,15 +143,20 @@ function setNextItemIndex(index) {
 	}
 
 	prev.addEventListener('click', function () {
-		clearInterval(intervalId);
-		intervalId = createInterval();
 		move(MOVE_LEFT);
 	});
 
-	next.addEventListener('click', function () {
-		clearInterval(intervalId);
-		intervalId = createInterval();
+	next.addEventListener('click', () => {
 		move(MOVE_RIGHT);
+	});
+
+	toggleButton.addEventListener('click', () => {
+		if (toggleButton.classList.contains('playing')) {
+			stopCarousel();
+		}
+		else {
+			startCarousel();
+		}
 	});
 
 	indicators.forEach(function (indicator, index) {
@@ -135,9 +173,6 @@ function setNextItemIndex(index) {
 					move(MOVE_RIGHT, index);
 				}
 			}
-
-			clearInterval(intervalId);
-			intervalId = createInterval();
 		});
 	});
 })();
