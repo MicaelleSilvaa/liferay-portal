@@ -4,7 +4,7 @@ const MOVE_RIGHT = 'move-right';
 
 const editMode = layoutMode === 'edit';
 const indicators = [].slice.call(
-	fragmentElement.querySelectorAll('.carousel-navigation button')
+	fragmentElement.querySelectorAll('.carousel-item-button')
 );
 const items = [].slice.call(fragmentElement.querySelectorAll('.carousel-item'));
 const next = fragmentElement.querySelector('.carousel-control-next');
