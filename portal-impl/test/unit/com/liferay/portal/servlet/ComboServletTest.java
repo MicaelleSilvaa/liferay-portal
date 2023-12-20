@@ -266,9 +266,6 @@ public class ComboServletTest {
 
 	@Test
 	public void testTooManyComboServletRequests() throws Exception {
-		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
-
 		int comboMaxFiles = 10;
 
 		ReflectionTestUtil.setFieldValue(
@@ -280,11 +277,14 @@ public class ComboServletTest {
 			if (i > 0) {
 				sb.append(StringPool.AMPERSAND);
 			}
+
 			sb.append("/js/javascript");
 			sb.append(i);
 			sb.append(".js");
-
 		}
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
 
 		mockHttpServletRequest.setQueryString(sb.toString());
 
@@ -294,9 +294,22 @@ public class ComboServletTest {
 		_comboServlet.service(mockHttpServletRequest, mockHttpServletResponse);
 
 		Assert.assertEquals(
+			HttpServletResponse.SC_OK, mockHttpServletResponse.getStatus());
+
+		sb.append(StringPool.AMPERSAND);
+		sb.append("/js/another_one.js");
+
+		mockHttpServletRequest = new MockHttpServletRequest();
+
+		mockHttpServletRequest.setQueryString(sb.toString());
+
+		mockHttpServletResponse = new MockHttpServletResponse();
+
+		_comboServlet.service(mockHttpServletRequest, mockHttpServletResponse);
+
+		Assert.assertEquals(
 			HttpServletResponse.SC_BAD_REQUEST,
 			mockHttpServletResponse.getStatus());
-
 	}
 
 	@Test
