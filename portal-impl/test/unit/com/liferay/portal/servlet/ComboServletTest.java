@@ -265,7 +265,10 @@ public class ComboServletTest {
 	}
 
 	@Test
-	public void testTooManyComboServletRequests() throws Exception {
+	public void testMaxFiles() throws Exception {
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
 		int comboMaxFiles = 10;
 
 		ReflectionTestUtil.setFieldValue(
@@ -282,9 +285,6 @@ public class ComboServletTest {
 			sb.append(i);
 			sb.append(".js");
 		}
-
-		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
 
 		mockHttpServletRequest.setQueryString(sb.toString());
 
