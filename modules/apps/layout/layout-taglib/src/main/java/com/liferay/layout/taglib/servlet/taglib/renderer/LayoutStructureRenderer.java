@@ -1009,8 +1009,8 @@ public class LayoutStructureRenderer {
 
 		JspWriter jspWriter = _pageContext.getOut();
 
-		jspWriter.write("<div class=\"font-weight-semi-bold bg-white");
-		jspWriter.write("text-secondary text-center text-3 p-5\">");
+		jspWriter.write("<div class=\"bg-white font-weight-semi-bold ");
+		jspWriter.write("p-5 text-3 text-center text-secondary\">");
 		jspWriter.write(
 			_renderLayoutStructureDisplayContext.getSuccessMessage(
 				formStyledLayoutStructureItem));
