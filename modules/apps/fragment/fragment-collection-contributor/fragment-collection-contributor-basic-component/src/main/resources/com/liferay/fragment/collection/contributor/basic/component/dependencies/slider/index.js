@@ -154,10 +154,12 @@ function stopCarousel() {
 	}
 
 	prev.addEventListener('click', function () {
+		stopCarousel();
 		move(MOVE_LEFT);
 	});
 
 	next.addEventListener('click', () => {
+		stopCarousel();
 		move(MOVE_RIGHT);
 	});
 
@@ -177,6 +179,8 @@ function stopCarousel() {
 			);
 
 			if (index !== indexActiveIndicator) {
+				stopCarousel();
+
 				if (index < indexActiveIndicator) {
 					move(MOVE_LEFT, index);
 				}
