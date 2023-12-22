@@ -793,8 +793,8 @@ public class ObjectFieldLocalServiceImpl
 
 		runSQL(
 			DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
-				dbTableName, objectField.getDBColumnName(),
-				objectField.getDBType()));
+				dbTableName, objectField.getBusinessType(),
+				objectField.getDBColumnName(), objectField.getDBType()));
 
 		if (GetterUtil.getBoolean(
 				ObjectFieldSettingUtil.getValue(
