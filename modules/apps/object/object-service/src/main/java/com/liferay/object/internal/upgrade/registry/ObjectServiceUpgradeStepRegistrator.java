@@ -21,6 +21,7 @@ import com.liferay.object.internal.upgrade.v3_27_0.ObjectActionUpgradeProcess;
 import com.liferay.object.internal.upgrade.v3_3_0.util.ObjectViewFilterColumnTable;
 import com.liferay.object.internal.upgrade.v3_9_0.ObjectLayoutBoxUpgradeProcess;
 import com.liferay.object.internal.upgrade.v6_0_0.util.ObjectValidationRuleSettingTable;
+import com.liferay.object.internal.upgrade.v7_1_2.SchemaUpgradeProcess;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.upgrade.BaseExternalReferenceCodeUpgradeProcess;
@@ -325,6 +326,8 @@ public class ObjectServiceUpgradeStepRegistrator
 				"ObjectDefinition", "storageType", "VARCHAR(255) null"),
 			UpgradeProcessFactory.alterColumnType(
 				"ObjectValidationRule", "engine", "VARCHAR(255) null"));
+		
+		registry.register("7.1.1", "7.1.2", new SchemaUpgradeProcess());
 	}
 
 	@Reference
