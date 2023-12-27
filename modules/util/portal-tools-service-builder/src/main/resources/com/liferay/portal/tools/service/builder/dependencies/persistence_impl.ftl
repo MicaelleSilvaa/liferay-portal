@@ -825,35 +825,35 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 					if (!Objects.equals(${entity.variableName}ModelImpl.getOriginalExternalReferenceCode(), ${entity.variableName}.getExternalReferenceCode())) {
 				</#if>
 
-						long userId = GetterUtil.getLong(PrincipalThreadLocal.getName());
+					long userId = GetterUtil.getLong(PrincipalThreadLocal.getName());
 
-						if (userId > 0) {
-							<#if entity.hasEntityColumn("companyId")>
-								long companyId = ${entity.variableName}.getCompanyId();
-							<#else>
-								long companyId = 0;
-							</#if>
+					if (userId > 0) {
+						<#if entity.hasEntityColumn("companyId")>
+							long companyId = ${entity.variableName}.getCompanyId();
+						<#else>
+							long companyId = 0;
+						</#if>
 
-							<#if entity.hasEntityColumn("groupId")>
-								long groupId = ${entity.variableName}.getGroupId();
-							<#else>
-								long groupId = 0;
-							</#if>
+						<#if entity.hasEntityColumn("groupId")>
+							long groupId = ${entity.variableName}.getGroupId();
+						<#else>
+							long groupId = 0;
+						</#if>
 
-							long classPK = 0;
+						long classPK = 0;
 
-							if (!isNew) {
-								classPK = ${entity.variableName}.getPrimaryKey();
-							}
+						if (!isNew) {
+							classPK = ${entity.variableName}.getPrimaryKey();
+						}
 
-							try {
-								${entity.variableName}.setExternalReferenceCode(SanitizerUtil.sanitize(companyId, groupId, userId, ${apiPackagePath}.model.${entity.name}.class.getName(), classPK, ContentTypes.TEXT_HTML, Sanitizer.MODE_ALL, ${entity.variableName}.getExternalReferenceCode(), null));
-							}
-							catch (SanitizerException sanitizerException) {
-								throw new SystemException(sanitizerException);
-							}
+						try {
+							${entity.variableName}.setExternalReferenceCode(SanitizerUtil.sanitize(companyId, groupId, userId, ${apiPackagePath}.model.${entity.name}.class.getName(), classPK, ContentTypes.TEXT_HTML, Sanitizer.MODE_ALL, ${entity.variableName}.getExternalReferenceCode(), null));
+						}
+						catch (SanitizerException sanitizerException) {
+							throw new SystemException(sanitizerException);
 						}
 					}
+				}
 
 				<#if entity.hasExternalReferenceCode()>
 					<#if serviceBuilder.isVersionGTE_7_4_0()>
