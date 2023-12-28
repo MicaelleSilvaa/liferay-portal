@@ -146,7 +146,7 @@ public class DDMFormInstanceRecordExporterImplTest {
 
 		Mockito.when(
 			ddmFormInstanceRecordExporterImpl.write(
-				"csv", ddmFormFieldsLabel, ddmFormFieldsValues)
+				ddmFormFields, ddmFormFieldsLabel, ddmFormFieldsValues, "csv")
 		).thenReturn(
 			new byte[] {1, 2, 3}
 		);
@@ -196,7 +196,7 @@ public class DDMFormInstanceRecordExporterImplTest {
 		inOrder.verify(
 			ddmFormInstanceRecordExporterImpl, Mockito.times(1)
 		).write(
-			"csv", ddmFormFieldsLabel, ddmFormFieldsValues
+			ddmFormFields, ddmFormFieldsLabel, ddmFormFieldsValues, "csv"
 		);
 	}
 
@@ -731,7 +731,8 @@ public class DDMFormInstanceRecordExporterImplTest {
 		);
 
 		byte[] content = ddmFormInstanceRecordExporterImpl.write(
-			"txt", Collections.emptyMap(), Collections.emptyList());
+			Collections.emptyMap(), Collections.emptyMap(),
+			Collections.emptyList(), "txt");
 
 		Assert.assertArrayEquals(new byte[] {1, 2, 3}, content);
 
