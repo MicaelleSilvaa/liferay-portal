@@ -846,6 +846,16 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 			kaleoInstanceToken, workflowContext, workflowContextServiceContext);
 	}
 
+	private User _getActiveUser(long assigneeClassPK) {
+		User user = _userLocalService.fetchUser(assigneeClassPK);
+
+		if ((user != null) && user.isActive()) {
+			return user;
+		}
+
+		return null;
+	}
+
 	private long _getAssignedUserId(long kaleoTaskInstanceTokenId) {
 		List<Long> assignedUserIds = new ArrayList<>();
 
@@ -1059,8 +1069,6 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 				kaleoTaskAssignment.getAssigneeClassName(),
 				User.class.getName())) {
 
-			User user = null;
-
 			if (actionType == _ACTION_TYPE_ASSIGN) {
 				if (assignedUserId ==
 						kaleoTaskAssignment.getAssigneeClassPK()) {
@@ -1068,26 +1076,20 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 					return;
 				}
 
-				user = _userLocalService.fetchUser(
-					kaleoTaskAssignment.getAssigneeClassPK());
+				allowedUsers.add(
+					_getActiveUser(kaleoTaskAssignment.getAssigneeClassPK()));
+
+				return;
 			}
-			else {
-				List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances =
+
+			allowedUsers.addAll(
+				ListUtil.toList(
 					_kaleoTaskAssignmentInstanceLocalService.
 						getKaleoTaskAssignmentInstances(
 							kaleoTaskInstanceToken.
-								getKaleoTaskInstanceTokenId());
-
-				KaleoTaskAssignmentInstance kaleoTaskAssignmentInstance =
-					kaleoTaskAssignmentInstances.get(0);
-
-				user = _userLocalService.fetchUser(
-					kaleoTaskAssignmentInstance.getAssigneeClassPK());
-			}
-
-			if ((user != null) && user.isActive()) {
-				allowedUsers.add(user);
-			}
+								getKaleoTaskInstanceTokenId()),
+					kaleoTaskAssignmentInstance -> _getActiveUser(
+						kaleoTaskAssignmentInstance.getAssigneeClassPK())));
 
 			return;
 		}
