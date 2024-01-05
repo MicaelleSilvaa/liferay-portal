@@ -828,6 +828,14 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 			workflowTaskId, comment, dueDate, serviceContext);
 	}
 
+	private void _addActiveUser(Set<User> allowedUsers, long assigneeClassPK) {
+		User user = _userLocalService.fetchUser(assigneeClassPK);
+
+		if ((user != null) && user.isActive()) {
+			allowedUsers.add(user);
+		}
+	}
+
 	private ExecutionContext _createExecutionContext(
 			KaleoTaskInstanceToken kaleoTaskInstanceToken)
 		throws PortalException {
@@ -844,16 +852,6 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 
 		return new ExecutionContext(
 			kaleoInstanceToken, workflowContext, workflowContextServiceContext);
-	}
-
-	private User _filterInativeUser(long assigneeClassPK) {
-		User user = _userLocalService.fetchUser(assigneeClassPK);
-
-		if ((user != null) && user.isActive()) {
-			return user;
-		}
-
-		return null;
 	}
 
 	private long _getAssignedUserId(long kaleoTaskInstanceTokenId) {
@@ -1076,21 +1074,24 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 					return;
 				}
 
-				allowedUsers.add(
-					_filterInativeUser(
-						kaleoTaskAssignment.getAssigneeClassPK()));
+				_addActiveUser(
+					allowedUsers, kaleoTaskAssignment.getAssigneeClassPK());
 
 				return;
 			}
 
-			allowedUsers.addAll(
-				ListUtil.toList(
-					_kaleoTaskAssignmentInstanceLocalService.
-						getKaleoTaskAssignmentInstances(
-							kaleoTaskInstanceToken.
-								getKaleoTaskInstanceTokenId()),
-					kaleoTaskAssignmentInstance -> _filterInativeUser(
-						kaleoTaskAssignmentInstance.getAssigneeClassPK())));
+			List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances =
+				_kaleoTaskAssignmentInstanceLocalService.
+					getKaleoTaskAssignmentInstances(
+						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId());
+
+			for (KaleoTaskAssignmentInstance kaleoTaskAssignmentInstance :
+					kaleoTaskAssignmentInstances) {
+
+				_addActiveUser(
+					allowedUsers,
+					kaleoTaskAssignmentInstance.getAssigneeClassPK());
+			}
 
 			return;
 		}
