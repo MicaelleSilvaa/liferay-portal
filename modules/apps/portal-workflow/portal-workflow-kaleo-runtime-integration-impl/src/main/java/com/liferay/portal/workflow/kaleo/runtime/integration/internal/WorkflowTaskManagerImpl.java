@@ -846,7 +846,7 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 			kaleoInstanceToken, workflowContext, workflowContextServiceContext);
 	}
 
-	private User _getActiveUser(long assigneeClassPK) {
+	private User _filterInativeUser(long assigneeClassPK) {
 		User user = _userLocalService.fetchUser(assigneeClassPK);
 
 		if ((user != null) && user.isActive()) {
@@ -1077,7 +1077,8 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 				}
 
 				allowedUsers.add(
-					_getActiveUser(kaleoTaskAssignment.getAssigneeClassPK()));
+					_filterInativeUser(
+						kaleoTaskAssignment.getAssigneeClassPK()));
 
 				return;
 			}
@@ -1088,7 +1089,7 @@ public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 						getKaleoTaskAssignmentInstances(
 							kaleoTaskInstanceToken.
 								getKaleoTaskInstanceTokenId()),
-					kaleoTaskAssignmentInstance -> _getActiveUser(
+					kaleoTaskAssignmentInstance -> _filterInativeUser(
 						kaleoTaskAssignmentInstance.getAssigneeClassPK())));
 
 			return;
