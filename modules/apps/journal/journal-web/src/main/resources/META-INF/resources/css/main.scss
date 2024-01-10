@@ -207,7 +207,7 @@ $productMenuWidth: 320px;
 			position: fixed;
 			top: auto;
 			width: $productMenuWidth;
-			z-index: 1;
+			z-index: 2;
 
 			@include media-breakpoint-up(lg) {
 				margin-top: $toolbarDesktopHeight;
