@@ -31,6 +31,7 @@ import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.FolderItemSelectorReturnType;
 import com.liferay.item.selector.criteria.folder.criterion.FolderItemSelectorCriterion;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -573,7 +574,12 @@ public class DLAdminDisplayContext {
 			}
 		}
 		catch (PortalException portalException) {
-			throw new SystemException(portalException);
+			if (portalException instanceof NoSuchFolderException) {
+				ReflectionUtil.throwException(portalException);
+			}
+			else {
+				throw new SystemException(portalException);
+			}
 		}
 	}
 
