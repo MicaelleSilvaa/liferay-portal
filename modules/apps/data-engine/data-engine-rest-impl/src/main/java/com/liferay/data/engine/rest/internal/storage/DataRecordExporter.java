@@ -56,7 +56,7 @@ public class DataRecordExporter {
 		DataDefinition dataDefinition = DataDefinitionUtil.toDataDefinition(
 			_dataDefinitionContentTypeRegistry,
 			_ddmFormFieldTypeServicesRegistry, ddlRecordSet.getDDMStructure(),
-			_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
+			_ddmStructureLayoutLocalService, null, _spiDDMFormRuleConverter);
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
