@@ -100,8 +100,7 @@ public class DynamicObjectDefinitionTable
 			sb.append(" ");
 			sb.append(
 				DynamicObjectDefinitionTableUtil.getDataType(
-					objectField.getBusinessType(),
-					objectField.getDBType()));
+					objectField.getBusinessType(), objectField.getDBType()));
 			sb.append(
 				DynamicObjectDefinitionTableUtil.getSQLColumnNull(
 					objectField.getDBType()));

@@ -28,6 +28,24 @@ import java.util.Map;
 public class DynamicObjectDefinitionTableUtil {
 
 	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #getAlterTableAddColumnSQL(String, String, String, String)}
+	 */
+	@Deprecated
+	public static String getAlterTableAddColumnSQL(
+		String tableName, String columnName, String dbType) {
+
+		String sql = StringBundler.concat(
+			"alter table ", tableName, " add ", columnName, StringPool.SPACE,
+			getDataType(dbType), getSQLColumnNull(dbType));
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("SQL: " + sql);
+		}
+
+		return sql;
+	}
+
+	/**
 	 * @see com.liferay.portal.dao.db.BaseDB#alterTableAddColumn(
 	 *      java.sql.Connection, String, String, String)
 	 */
@@ -44,6 +62,14 @@ public class DynamicObjectDefinitionTableUtil {
 		}
 
 		return sql;
+	}
+
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link #getDataType(String, String)}
+	 */
+	@Deprecated
+	public static String getDataType(String dbType) {
+		return _dataTypes.get(dbType);
 	}
 
 	public static String getDataType(String businessType, String dbType) {
