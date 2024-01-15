@@ -6,3 +6,18 @@
 window.Liferay.FeatureFlags = {
 	'LPS-149256': false,
 };
+
+import * as os from 'node:os'; // eslint-disable-line @liferay/no-extraneous-dependencies
+import * as path from 'path';
+import {zip} from 'zip-a-folder';
+
+export function getRandomInt(): number {
+	return Math.floor(Math.random() * 9999999999);
+}
+
+export async function zipFolder(folderPath: string) {
+	const tempFilePath = path.join(os.tmpdir(), path.basename(folderPath));
+	await zip(folderPath, tempFilePath);
+
+	return tempFilePath;
+}
