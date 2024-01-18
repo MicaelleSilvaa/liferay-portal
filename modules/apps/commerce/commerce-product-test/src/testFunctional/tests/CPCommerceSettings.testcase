@@ -335,6 +335,8 @@ definition {
 
 		AssertElementPresent(locator1 = "Message#SUCCESS");
 
+		Navigator.gotoBack();
+
 		AssertElementPresent(
 			key_entry = "Test Region",
 			locator1 = "CommerceNavigation#ANY_ENTRY_NAME");
