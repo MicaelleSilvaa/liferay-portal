@@ -1535,6 +1535,19 @@ public class JournalArticleStagedModelDataHandler
 		return false;
 	}
 
+	private boolean _isUpdateAsset(
+		long groupId, String articleId, double version) {
+
+		JournalArticle article = _journalArticleLocalService.fetchLatestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
+
+		if ((article == null) || (version >= article.getVersion())) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private void _sendUndeliveredUserNotificationEvents(
 		JournalArticle article, JournalArticle importedArticle,
 		ServiceContext serviceContext) {
@@ -1743,19 +1756,6 @@ public class JournalArticleStagedModelDataHandler
 				_journalArticleLocalService.updateJournalArticle(curArticle);
 			}
 		}
-	}
-
-	private boolean _isUpdateAsset(
-		long groupId, String articleId, double version) {
-
-		JournalArticle article = _journalArticleLocalService.fetchLatestArticle(
-			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
-
-		if ((article == null) || (version >= article.getVersion())) {
-			return true;
-		}
-
-		return false;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
