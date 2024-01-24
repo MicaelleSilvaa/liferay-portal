@@ -74,12 +74,6 @@ export default function propsTransformer({
 				'"]'
 		);
 
-		if (!entrySelectorNodes.length) {
-			entrySelectorNodes = document.querySelectorAll(
-				'.card-page-item input[type="checkbox"]'
-			);
-		}
-
 		const articleIds = Array.from(entrySelectorNodes)
 			.filter(
 				(node) =>
