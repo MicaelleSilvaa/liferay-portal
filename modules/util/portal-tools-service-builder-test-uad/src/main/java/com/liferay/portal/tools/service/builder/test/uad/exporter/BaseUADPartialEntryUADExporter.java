@@ -55,11 +55,11 @@ public abstract class BaseUADPartialEntryUADExporter
 
 		sb.append(
 			"<column><column-name>uadPartialEntryId</column-name><column-value><![CDATA[");
-		sb.append(uadPartialEntry.getUadPartialEntryId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(uadPartialEntry.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
