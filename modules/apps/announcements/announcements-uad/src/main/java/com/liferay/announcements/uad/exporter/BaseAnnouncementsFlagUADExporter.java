@@ -54,11 +54,11 @@ public abstract class BaseAnnouncementsFlagUADExporter
 
 		sb.append(
 			"<column><column-name>flagId</column-name><column-value><![CDATA[");
-		sb.append(announcementsFlag.getFlagId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(announcementsFlag.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");

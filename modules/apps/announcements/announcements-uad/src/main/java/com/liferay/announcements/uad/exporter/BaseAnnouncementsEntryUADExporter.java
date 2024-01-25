@@ -54,11 +54,11 @@ public abstract class BaseAnnouncementsEntryUADExporter
 
 		sb.append(
 			"<column><column-name>entryId</column-name><column-value><![CDATA[");
-		sb.append(announcementsEntry.getEntryId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(announcementsEntry.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
