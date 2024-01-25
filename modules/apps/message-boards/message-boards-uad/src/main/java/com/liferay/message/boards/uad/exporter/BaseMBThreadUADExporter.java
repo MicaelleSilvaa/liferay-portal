@@ -54,11 +54,11 @@ public abstract class BaseMBThreadUADExporter
 
 		sb.append(
 			"<column><column-name>threadId</column-name><column-value><![CDATA[");
-		sb.append(mbThread.getThreadId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>statusByUserId</column-name><column-value><![CDATA[");
-		sb.append(mbThread.getStatusByUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>statusByUserName</column-name><column-value><![CDATA[");
@@ -66,15 +66,15 @@ public abstract class BaseMBThreadUADExporter
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>rootMessageUserId</column-name><column-value><![CDATA[");
-		sb.append(mbThread.getRootMessageUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>lastPostByUserId</column-name><column-value><![CDATA[");
-		sb.append(mbThread.getLastPostByUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(mbThread.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");

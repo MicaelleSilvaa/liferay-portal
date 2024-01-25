@@ -54,11 +54,11 @@ public abstract class BaseMBMessageUADExporter
 
 		sb.append(
 			"<column><column-name>messageId</column-name><column-value><![CDATA[");
-		sb.append(mbMessage.getMessageId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>statusByUserId</column-name><column-value><![CDATA[");
-		sb.append(mbMessage.getStatusByUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>statusByUserName</column-name><column-value><![CDATA[");
@@ -66,7 +66,7 @@ public abstract class BaseMBMessageUADExporter
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(mbMessage.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
