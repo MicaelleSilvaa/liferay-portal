@@ -59,12 +59,11 @@ public abstract class BaseKaleoTaskAssignmentInstanceUADExporter
 
 		sb.append(
 			"<column><column-name>kaleoTaskAssignmentInstanceId</column-name><column-value><![CDATA[");
-		sb.append(
-			kaleoTaskAssignmentInstance.getKaleoTaskAssignmentInstanceId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(kaleoTaskAssignmentInstance.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");

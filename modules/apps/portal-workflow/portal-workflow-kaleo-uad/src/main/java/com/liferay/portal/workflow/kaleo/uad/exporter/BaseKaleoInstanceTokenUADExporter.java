@@ -54,11 +54,11 @@ public abstract class BaseKaleoInstanceTokenUADExporter
 
 		sb.append(
 			"<column><column-name>kaleoInstanceTokenId</column-name><column-value><![CDATA[");
-		sb.append(kaleoInstanceToken.getKaleoInstanceTokenId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(kaleoInstanceToken.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
