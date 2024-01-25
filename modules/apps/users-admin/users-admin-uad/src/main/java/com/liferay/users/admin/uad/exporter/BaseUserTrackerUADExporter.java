@@ -54,11 +54,11 @@ public abstract class BaseUserTrackerUADExporter
 
 		sb.append(
 			"<column><column-name>userTrackerId</column-name><column-value><![CDATA[");
-		sb.append(userTracker.getUserTrackerId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(userTracker.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");
