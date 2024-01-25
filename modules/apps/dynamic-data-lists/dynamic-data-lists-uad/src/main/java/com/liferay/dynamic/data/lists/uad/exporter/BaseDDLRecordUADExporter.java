@@ -54,11 +54,11 @@ public abstract class BaseDDLRecordUADExporter
 
 		sb.append(
 			"<column><column-name>recordId</column-name><column-value><![CDATA[");
-		sb.append(ddlRecord.getRecordId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>versionUserId</column-name><column-value><![CDATA[");
-		sb.append(ddlRecord.getVersionUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>versionUserName</column-name><column-value><![CDATA[");
@@ -66,7 +66,7 @@ public abstract class BaseDDLRecordUADExporter
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(ddlRecord.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
