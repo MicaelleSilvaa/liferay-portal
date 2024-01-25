@@ -54,11 +54,11 @@ public abstract class BaseDLFileShortcutUADExporter
 
 		sb.append(
 			"<column><column-name>fileShortcutId</column-name><column-value><![CDATA[");
-		sb.append(dlFileShortcut.getFileShortcutId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>statusByUserId</column-name><column-value><![CDATA[");
-		sb.append(dlFileShortcut.getStatusByUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>statusByUserName</column-name><column-value><![CDATA[");
@@ -66,7 +66,7 @@ public abstract class BaseDLFileShortcutUADExporter
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(dlFileShortcut.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
