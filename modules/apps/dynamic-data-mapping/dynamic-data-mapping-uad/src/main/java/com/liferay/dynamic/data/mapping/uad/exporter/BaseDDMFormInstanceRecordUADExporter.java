@@ -55,11 +55,11 @@ public abstract class BaseDDMFormInstanceRecordUADExporter
 
 		sb.append(
 			"<column><column-name>formInstanceRecordId</column-name><column-value><![CDATA[");
-		sb.append(ddmFormInstanceRecord.getFormInstanceRecordId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>versionUserId</column-name><column-value><![CDATA[");
-		sb.append(ddmFormInstanceRecord.getVersionUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>versionUserName</column-name><column-value><![CDATA[");
@@ -67,7 +67,7 @@ public abstract class BaseDDMFormInstanceRecordUADExporter
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(ddmFormInstanceRecord.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
