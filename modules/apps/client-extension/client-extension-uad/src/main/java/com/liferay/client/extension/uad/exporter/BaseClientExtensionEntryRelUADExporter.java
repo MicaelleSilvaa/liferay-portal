@@ -57,11 +57,11 @@ public abstract class BaseClientExtensionEntryRelUADExporter
 
 		sb.append(
 			"<column><column-name>clientExtensionEntryRelId</column-name><column-value><![CDATA[");
-		sb.append(clientExtensionEntryRel.getClientExtensionEntryRelId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(clientExtensionEntryRel.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
