@@ -54,11 +54,11 @@ public abstract class BasePortletItemUADExporter
 
 		sb.append(
 			"<column><column-name>portletItemId</column-name><column-value><![CDATA[");
-		sb.append(portletItem.getPortletItemId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(portletItem.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
