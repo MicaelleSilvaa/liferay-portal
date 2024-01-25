@@ -54,11 +54,11 @@ public abstract class BaseLayoutFriendlyURLUADExporter
 
 		sb.append(
 			"<column><column-name>layoutFriendlyURLId</column-name><column-value><![CDATA[");
-		sb.append(layoutFriendlyURL.getLayoutFriendlyURLId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(layoutFriendlyURL.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");

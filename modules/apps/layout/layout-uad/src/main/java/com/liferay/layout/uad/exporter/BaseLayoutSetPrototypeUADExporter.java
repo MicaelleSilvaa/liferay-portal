@@ -54,11 +54,11 @@ public abstract class BaseLayoutSetPrototypeUADExporter
 
 		sb.append(
 			"<column><column-name>layoutSetPrototypeId</column-name><column-value><![CDATA[");
-		sb.append(layoutSetPrototype.getLayoutSetPrototypeId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(layoutSetPrototype.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
