@@ -55,11 +55,11 @@ public abstract class BasePasswordPolicyUADExporter
 
 		sb.append(
 			"<column><column-name>passwordPolicyId</column-name><column-value><![CDATA[");
-		sb.append(passwordPolicy.getPasswordPolicyId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(passwordPolicy.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
