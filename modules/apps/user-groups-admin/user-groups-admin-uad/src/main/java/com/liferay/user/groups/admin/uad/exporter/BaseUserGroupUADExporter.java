@@ -54,11 +54,11 @@ public abstract class BaseUserGroupUADExporter
 
 		sb.append(
 			"<column><column-name>userGroupId</column-name><column-value><![CDATA[");
-		sb.append(userGroup.getUserGroupId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
-		sb.append(userGroup.getUserId());
+		sb.append("0");
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userName</column-name><column-value><![CDATA[");
