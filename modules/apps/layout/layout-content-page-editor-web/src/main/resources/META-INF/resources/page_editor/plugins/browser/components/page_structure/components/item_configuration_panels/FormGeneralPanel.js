@@ -216,20 +216,6 @@ function SuccessInteractionOptions({item, onValueSelect}) {
 		item.config.showNotificationPreview
 	);
 
-	const onPreviewNotification = (checked) => {
-		setShowNotificationPreview(checked);
-
-		dispatch(
-			updateItemLocalConfig({
-				disableUndo: true,
-				itemConfig: {
-					showNotificationPreview: checked,
-				},
-				itemId: item.itemId,
-			})
-		);
-	};
-
 	const hidePreview = () => {
 		const previewElement = document.getElementById(previewId);
 
@@ -403,7 +389,7 @@ function SuccessInteractionOptions({item, onValueSelect}) {
 											}}
 											onValueSelect={(_, value) => {
 												if (showNotificationPreview) {
-													onPreviewNotification(
+													setShowNotificationPreview(
 														false
 													);
 													hidePreview();
@@ -431,11 +417,14 @@ function SuccessInteractionOptions({item, onValueSelect}) {
 									)}
 									displayType="secondary"
 									onClick={() => {
-										onPreviewNotification(true);
+										setShowNotificationPreview(true);
+
 										openToast({
 											message: localizedNotificationText,
 											onClose: () =>
-												onPreviewNotification(false),
+												setShowNotificationPreview(
+													false
+												),
 											toastProps: {
 												id: previewId,
 											},

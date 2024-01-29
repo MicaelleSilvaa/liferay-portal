@@ -10,7 +10,6 @@ import {debounce, openToast, sub} from 'frontend-js-web';
 import PropTypes from 'prop-types';
 import React, {useCallback, useMemo, useState} from 'react';
 
-import updateItemLocalConfig from '../../../../../../app/actions/updateItemLocalConfig';
 import {CheckboxField} from '../../../../../../app/components/fragment_configuration_fields/CheckboxField';
 import {SelectField} from '../../../../../../app/components/fragment_configuration_fields/SelectField';
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../../../../app/config/constants/editableFragmentEntryProcessor';
@@ -173,7 +172,6 @@ function InteractionSelector({config, data, fragmentId, onValueSelect}) {
 		({layoutData}) => layoutData.items[fragmentId].config
 	);
 
-	const dispatch = useDispatch();
 	const previewId = useId();
 	const textInputId = useId();
 
@@ -194,20 +192,6 @@ function InteractionSelector({config, data, fragmentId, onValueSelect}) {
 		() => debounce((name, value) => onConfigChange(name, value), 300),
 		[onConfigChange]
 	);
-
-	const onShowPreview = (checked) => {
-		setShowPreview(checked);
-
-		dispatch(
-			updateItemLocalConfig({
-				disableUndo: true,
-				itemConfig: {
-					showPreview: checked,
-				},
-				itemId: fragmentId,
-			})
-		);
-	};
 
 	const hidePreview = () => {
 		const previewElement = document.getElementById(previewId);
@@ -263,7 +247,7 @@ function InteractionSelector({config, data, fragmentId, onValueSelect}) {
 									id={textInputId}
 									onChange={(event) => {
 										if (showPreview) {
-											onShowPreview(false);
+											setShowPreview(false);
 											hidePreview();
 										}
 
@@ -296,12 +280,12 @@ function InteractionSelector({config, data, fragmentId, onValueSelect}) {
 							)}
 							displayType="secondary"
 							onClick={() => {
-								onShowPreview(true);
+								setShowPreview(true);
 								openToast({
 									message:
 										textValue[languageId] ||
 										defaultMessage[languageId],
-									onClose: () => onShowPreview(false),
+									onClose: () => setShowPreview(false),
 									toastProps: {
 										id: previewId,
 									},
