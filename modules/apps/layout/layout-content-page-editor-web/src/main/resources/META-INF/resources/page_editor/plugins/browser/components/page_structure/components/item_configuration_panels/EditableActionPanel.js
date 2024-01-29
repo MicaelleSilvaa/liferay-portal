@@ -278,6 +278,7 @@ function InteractionSelector({config, data, fragmentId, onValueSelect}) {
 								Liferay.Language.get('preview-x-notification'),
 								label
 							)}
+							disabled={showPreview}
 							displayType="secondary"
 							onClick={() => {
 								setShowPreview(true);
