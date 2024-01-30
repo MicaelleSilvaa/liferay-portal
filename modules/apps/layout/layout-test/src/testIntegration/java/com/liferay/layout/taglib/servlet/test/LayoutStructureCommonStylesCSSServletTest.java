@@ -49,9 +49,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 public class LayoutStructureCommonStylesCSSServletTest {
 
 	public static final String COMMON_CSS_STYLE =
-		".lfr-layout-structure-item-container { padding: 0; }." +
-			"lfr-layout-structure-item-row { overflow: hidden; }." +
-				"portlet-borderless .portlet-content { padding: 0; }";
+		".lfr-layout-structure-item-container {padding: 0;} " +
+			".lfr-layout-structure-item-row {overflow: hidden;} " +
+				".portlet-borderless .portlet-content {padding: 0;}";
 
 	@ClassRule
 	@Rule
