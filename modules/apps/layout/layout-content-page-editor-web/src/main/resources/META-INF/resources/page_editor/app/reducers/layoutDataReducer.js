@@ -41,23 +41,12 @@ export default function layoutDataReducer(layoutData = INITIAL_STATE, action) {
 			const {itemId, layoutData: nextLayoutData} = action;
 
 			const nextItem = nextLayoutData.items[itemId] || {};
-			const previousItem = layoutData.items[itemId] || {};
 
-			return {
-				...nextLayoutData,
-				items: {
-					...nextLayoutData.items,
-					[itemId]: {
-						...nextItem,
-						config: {
-							...(action.overridePreviousConfig
-								? {}
-								: previousItem.config),
-							...nextItem.config,
-						},
-					},
-				},
-			};
+			return setIn(
+				nextLayoutData,
+				['items', itemId, 'config'],
+				nextItem.config
+			);
 		}
 
 		case UPDATE_PREVIEW_IMAGE: {

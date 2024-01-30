@@ -47,7 +47,7 @@ export function FormGeneralPanel({item}) {
 	const updateItemLocalConfig = useUpdateItemLocalConfig();
 
 	const onValueSelect = useCallback(
-		(nextConfig, overridePreviousConfig = true) => {
+		(nextConfig) => {
 			const isMapping = Boolean(nextConfig.classNameId);
 
 			if (isMapping) {
@@ -61,7 +61,6 @@ export function FormGeneralPanel({item}) {
 				updateFormItemConfig({
 					itemConfig: nextConfig,
 					itemId: item.itemId,
-					overridePreviousConfig,
 				})
 			).then(() =>
 				updateItemLocalConfig(item.itemId, {
@@ -224,7 +223,7 @@ function SuccessInteractionOptions({item, onValueSelect}) {
 						...config,
 				  };
 
-			onValueSelect({successMessage: nextConfig}, false);
+			onValueSelect({successMessage: nextConfig});
 		},
 		[interactionConfig, onValueSelect]
 	);

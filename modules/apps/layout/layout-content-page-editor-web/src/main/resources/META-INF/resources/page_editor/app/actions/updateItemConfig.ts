@@ -11,7 +11,6 @@ import type {PageContent} from './addItem';
 export default function updateItemConfig({
 	itemId,
 	layoutData,
-	overridePreviousConfig = false,
 	pageContents,
 }: {
 	itemId: string;
@@ -22,7 +21,6 @@ export default function updateItemConfig({
 	return {
 		itemId,
 		layoutData,
-		overridePreviousConfig,
 		pageContents,
 		type: UPDATE_ITEM_CONFIG,
 	} as const;
