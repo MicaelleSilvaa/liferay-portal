@@ -14,7 +14,6 @@ import {
 	UPDATE_FORM_ITEM_CONFIG,
 	UPDATE_FRAGMENT_ENTRY_LINK_CONFIGURATION,
 	UPDATE_ITEM_CONFIG,
-	UPDATE_ITEM_LOCAL_CONFIG,
 	UPDATE_PREVIEW_IMAGE,
 	UPDATE_ROW_COLUMNS,
 } from '../actions/types';
@@ -55,28 +54,6 @@ export default function layoutDataReducer(layoutData = INITIAL_STATE, action) {
 								? {}
 								: previousItem.config),
 							...nextItem.config,
-						},
-					},
-				},
-			};
-		}
-
-		case UPDATE_ITEM_LOCAL_CONFIG: {
-			const {itemConfig, itemId} = action;
-
-			const item = layoutData.items[itemId] || {};
-
-			return {
-				...layoutData,
-				items: {
-					...layoutData.items,
-					[itemId]: {
-						...item,
-						config: {
-							...(action.overridePreviousConfig
-								? {}
-								: item.config),
-							...itemConfig,
 						},
 					},
 				},
