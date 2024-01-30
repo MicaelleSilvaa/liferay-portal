@@ -8,7 +8,6 @@ import type {PageContent} from './addItem';
 export default function updateItemConfig({
 	itemId,
 	layoutData,
-	overridePreviousConfig,
 	pageContents,
 }: {
 	itemId: string;
@@ -18,7 +17,6 @@ export default function updateItemConfig({
 }): {
 	readonly itemId: string;
 	readonly layoutData: LayoutData;
-	readonly overridePreviousConfig: boolean;
 	readonly pageContents: PageContent[];
 	readonly type: 'UPDATE_ITEM_CONFIG';
 };

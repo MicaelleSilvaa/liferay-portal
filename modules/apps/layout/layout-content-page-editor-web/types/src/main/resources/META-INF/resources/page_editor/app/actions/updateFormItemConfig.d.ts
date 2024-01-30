@@ -11,7 +11,6 @@ export default function updateFormItemConfig({
 	isMapping,
 	itemId,
 	layoutData,
-	overridePreviousConfig,
 	removedFragmentEntryLinkIds,
 	restoredFragmentEntryLinkIds,
 }: {
@@ -20,7 +19,6 @@ export default function updateFormItemConfig({
 	isMapping: boolean;
 	itemId: string;
 	layoutData: LayoutData;
-	overridePreviousConfig?: boolean;
 	removedFragmentEntryLinkIds?: string[];
 	restoredFragmentEntryLinkIds?: string[];
 }): {
@@ -31,7 +29,6 @@ export default function updateFormItemConfig({
 	readonly isMapping: boolean;
 	readonly itemId: string;
 	readonly layoutData: LayoutData;
-	readonly overridePreviousConfig: boolean;
 	readonly removedFragmentEntryLinkIds: string[];
 	readonly restoredFragmentEntryLinkIds: string[];
 	readonly type: 'UPDATE_FORM_ITEM_CONFIG';
