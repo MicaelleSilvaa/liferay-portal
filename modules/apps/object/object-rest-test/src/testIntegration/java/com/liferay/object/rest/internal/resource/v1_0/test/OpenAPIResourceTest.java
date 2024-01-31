@@ -24,22 +24,15 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Company;
-import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.PortletCategory;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
-import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
-import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.HTTPTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.Http;
-import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -215,20 +208,6 @@ public class OpenAPIResourceTest {
 
 	@Test
 	public void testGetOpenAPIMultipleCompanies() throws Exception {
-		User user = UserTestUtil.getAdminUser(_company.getCompanyId());
-
-		Group group = GroupLocalServiceUtil.getGroup(
-			_company.getCompanyId(), GroupConstants.GUEST);
-
-		_user = UserTestUtil.addUser(
-			_company.getCompanyId(), user.getUserId(),
-			RandomTestUtil.randomString(
-				NumericStringRandomizerBumper.INSTANCE,
-				UniqueStringRandomizerBumper.INSTANCE),
-			LocaleUtil.getDefault(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), new long[] {group.getGroupId()},
-			ServiceContextTestUtil.getServiceContext());
-
 		String randomString = RandomTestUtil.randomString() + "abc";
 
 		_objectDefinition1 = ObjectDefinitionTestUtil.publishObjectDefinition(
@@ -240,6 +219,8 @@ public class OpenAPIResourceTest {
 					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME, false)),
 			ObjectDefinitionConstants.SCOPE_COMPANY,
 			TestPropsValues.getUserId());
+
+		_user = UserTestUtil.addUser(_company);
 
 		_objectDefinition2 = ObjectDefinitionTestUtil.publishObjectDefinition(
 			"A" + StringUtil.toUpperCase(randomString),
