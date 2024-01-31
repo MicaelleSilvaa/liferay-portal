@@ -377,7 +377,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 							HashMapDictionaryBuilder.<String, Object>put(
 								"batch.engine.entity.class.name",
 								ObjectEntry.class.getName() + "#" +
-									osgiJaxRsName
+									objectDefinition.getName()
 							).put(
 								"batch.engine.task.item.delegate", "true"
 							).put(
@@ -392,7 +392,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 							).put(
 								"entity.class.name",
 								ObjectEntry.class.getName() + "#" +
-									osgiJaxRsName
+									objectDefinition.getName()
 							).build()),
 						_bundleContext.registerService(
 							ObjectRelationshipElementsParser.class,
@@ -418,7 +418,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			"companyId", companyIds
 		).put(
 			"entity.class.name",
-			ObjectEntry.class.getName() + "#" + osgiJaxRsName
+			ObjectEntry.class.getName() + "#" + objectDefinition.getName()
 		).put(
 			"osgi.jaxrs.application.select",
 			"(osgi.jaxrs.name=" + osgiJaxRsName + ")"
