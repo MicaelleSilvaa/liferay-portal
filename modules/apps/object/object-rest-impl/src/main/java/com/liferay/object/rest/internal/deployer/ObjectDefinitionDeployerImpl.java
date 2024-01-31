@@ -375,6 +375,10 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 							},
 							HashMapDictionaryBuilder.<String, Object>put(
+								"batch.engine.entity.class.name",
+								ObjectEntry.class.getName() + "#" +
+									osgiJaxRsName
+							).put(
 								"batch.engine.task.item.delegate", "true"
 							).put(
 								"batch.engine.task.item.delegate.name",
@@ -410,9 +414,6 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 		properties = HashMapDictionaryBuilder.<String, Object>put(
 			"api.version", "v1.0"
-		).put(
-			"batch.engine.entity.class.name",
-			ObjectEntry.class.getName() + "#" + osgiJaxRsName
 		).put(
 			"companyId", companyIds
 		).put(
