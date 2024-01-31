@@ -115,9 +115,7 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 				dropdownItem.putData("action", "deleteRecords");
 				dropdownItem.setIcon("times-circle");
 				dropdownItem.setLabel(
-					LanguageUtil.get(
-						PortalUtil.getHttpServletRequest(_renderRequest),
-						"delete"));
+					getLocalizedMessage(_renderRequest.getLocale(), "delete"));
 				dropdownItem.setQuickAction(true);
 			}
 		).build();
@@ -280,10 +278,14 @@ public class DDMFormViewFormInstanceRecordsDisplayContext {
 			TransformUtil.transformToArray(
 				Arrays.asList(
 					StringUtil.split(columnValues, StringPool.COMMA_AND_SPACE)),
-				value -> LanguageUtil.get(
+				value -> getLocalizedMessage(
 					themeDisplay.getLocale(), value.toLowerCase()),
 				String.class),
 			StringPool.COMMA_AND_SPACE);
+	}
+
+	public String getLocalizedMessage(Locale locale, String key) {
+		return LanguageUtil.get(locale, key);
 	}
 
 	public List<NavigationItem> getNavigationItems() {
