@@ -90,6 +90,8 @@ import com.liferay.users.admin.kernel.util.UsersAdmin;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.URLEncoder;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -231,7 +233,8 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		String vCard = ContactsUtil.getVCard(user);
 
 		PortletResponseUtil.sendFile(
-			resourceRequest, resourceResponse, user.getFullName() + ".vcf",
+			resourceRequest, resourceResponse,
+			URLEncoder.encode(user.getFullName(), "UTF-8") + ".vcf",
 			vCard.getBytes(StringPool.UTF8), "text/x-vcard; charset=UTF-8");
 	}
 
