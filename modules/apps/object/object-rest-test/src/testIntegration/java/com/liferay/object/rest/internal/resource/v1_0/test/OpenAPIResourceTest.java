@@ -260,7 +260,6 @@ public class OpenAPIResourceTest {
 		);
 	}
 
-	@Ignore
 	@Test
 	public void testGetOpenAPIWithCategorizationDisabled() throws Exception {
 		_objectDefinition1.setEnableCategorization(false);
