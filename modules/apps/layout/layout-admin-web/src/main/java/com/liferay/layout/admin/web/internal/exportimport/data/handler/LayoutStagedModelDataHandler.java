@@ -939,6 +939,9 @@ public class LayoutStagedModelDataHandler
 
 		_importLayoutFriendlyURLs(importedLayout, layout, portletDataContext);
 
+		_importLayoutPageTemplateStructures(
+			importedLayout, layout, portletDataContext);
+
 		if ((layout.isTypePortlet() &&
 			 Validator.isNotNull(layout.getTypeSettings())) ||
 			layout.isTypeAssetDisplay() || layout.isTypeContent()) {
@@ -948,9 +951,6 @@ public class LayoutStagedModelDataHandler
 		}
 
 		_importAssets(importedLayout, layout, portletDataContext);
-
-		_importLayoutPageTemplateStructures(
-			importedLayout, layout, portletDataContext);
 
 		_importLayoutSEOEntries(layout, portletDataContext);
 
