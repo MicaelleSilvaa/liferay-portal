@@ -51,11 +51,11 @@ public class EditCTCollectionMVCRenderCommand implements MVCRenderCommand {
 	public String render(
 		RenderRequest renderRequest, RenderResponse renderResponse) {
 
-		long ctCollectionId = ParamUtil.getLong(
-			renderRequest, "ctCollectionId");
-
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		long ctCollectionId = ParamUtil.getLong(
+			renderRequest, "ctCollectionId");
 
 		try {
 			if (ctCollectionId != 0) {
