@@ -100,7 +100,7 @@ public class KaleoDefinitionServiceImplTest {
 	@Test
 	public void testAddKaleoDefinition() throws Exception {
 
-		// Admin user, company.administrator.can.publish disabled
+		// Administrator with "company.administrator.can.publish" disabled
 
 		_setUpPermissionThreadLocal(_companyAdminUser);
 
@@ -115,7 +115,7 @@ public class KaleoDefinitionServiceImplTest {
 				RandomTestUtil.randomString(), _read(), "company", 1,
 				_serviceContext));
 
-		// Admin user, company.administrator.can.publish enabled
+		// Administrator with "company.administrator.can.publish" enabled
 
 		ConfigurationTestUtil.saveConfiguration(
 			_configuration,
@@ -133,7 +133,7 @@ public class KaleoDefinitionServiceImplTest {
 	@Test
 	public void testUpdateKaleoDefinition() throws Exception {
 
-		// Admin user, company.administrator.can.publish disabled
+		// Administrator with "company.administrator.can.publish" disabled
 
 		KaleoDefinition kaleoDefinition =
 			_kaleoDefinitionService.addKaleoDefinition(
@@ -154,7 +154,7 @@ public class KaleoDefinitionServiceImplTest {
 				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 				kaleoDefinition.getContent(), _serviceContext));
 
-		// Admin user, company.administrator.can.publish enabled
+		// Administrator with "company.administrator.can.publish" enabled
 
 		ConfigurationTestUtil.saveConfiguration(
 			_configuration,
@@ -182,10 +182,10 @@ public class KaleoDefinitionServiceImplTest {
 	}
 
 	private void _setUpPermissionThreadLocal(User user) {
+		PrincipalThreadLocal.setName(user.getUserId());
+
 		PermissionThreadLocal.setPermissionChecker(
 			PermissionCheckerFactoryUtil.create(user));
-
-		PrincipalThreadLocal.setName(user.getUserId());
 	}
 
 	private static Company _company;
