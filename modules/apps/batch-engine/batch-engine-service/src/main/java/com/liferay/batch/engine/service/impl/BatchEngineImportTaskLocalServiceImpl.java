@@ -52,7 +52,7 @@ public class BatchEngineImportTaskLocalServiceImpl
 
 		BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
 			_batchEngineTaskItemDelegateRegistry.getBatchEngineTaskItemDelegate(
-				className, taskItemDelegateName);
+				companyId, className, taskItemDelegateName);
 
 		return addBatchEngineImportTask(
 			externalReferenceCode, companyId, userId, batchSize, callbackURL,

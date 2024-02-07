@@ -68,6 +68,7 @@ public class BatchEngineImportTaskExecutorImpl
 	public void execute(BatchEngineImportTask batchEngineImportTask) {
 		BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
 			_batchEngineTaskItemDelegateRegistry.getBatchEngineTaskItemDelegate(
+				batchEngineImportTask.getCompanyId(),
 				batchEngineImportTask.getClassName(),
 				batchEngineImportTask.getTaskItemDelegateName());
 
