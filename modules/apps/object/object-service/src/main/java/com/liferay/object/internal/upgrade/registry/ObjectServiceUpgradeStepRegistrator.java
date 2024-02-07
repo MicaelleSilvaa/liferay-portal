@@ -328,6 +328,19 @@ public class ObjectServiceUpgradeStepRegistrator
 				"ObjectValidationRule", "engine", "VARCHAR(255) null"));
 
 		registry.register("7.1.1", "7.1.2", new SchemaUpgradeProcess());
+
+		registry.register(
+			"7.1.2", "7.2.0",
+			new BaseExternalReferenceCodeUpgradeProcess() {
+
+				@Override
+				protected String[][] getTableAndPrimaryKeyColumnNames() {
+					return new String[][] {
+						{"ObjectRelationship", "objectRelationshipId"}
+					};
+				}
+
+			});
 	}
 
 	@Reference
