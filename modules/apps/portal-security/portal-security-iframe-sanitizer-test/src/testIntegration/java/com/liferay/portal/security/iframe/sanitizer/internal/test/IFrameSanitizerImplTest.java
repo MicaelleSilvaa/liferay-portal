@@ -93,11 +93,9 @@ public class IFrameSanitizerImplTest {
 				Assert.assertEquals(
 					_BASIC_CONTENT,
 					_sanitize(_BASIC_CONTENT, ContentTypes.TEXT_PLAIN));
-
 				Assert.assertEquals(
 					_BASIC_HTML_CONTENT,
 					_sanitize(_BASIC_HTML_CONTENT, ContentTypes.TEXT_PLAIN));
-
 				Assert.assertEquals(
 					_BASIC_HTML_CONTENT + _INITIAL_IFRAME_TAG,
 					_sanitize(
