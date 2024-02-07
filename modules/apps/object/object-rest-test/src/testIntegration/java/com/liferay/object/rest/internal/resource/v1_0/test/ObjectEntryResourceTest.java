@@ -5073,6 +5073,31 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
+	public void testPutCustomObjectEntryExternalReferenceCode()
+		throws Exception {
+
+		JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+			).put(
+				"externalReferenceCode", _ERC_VALUE_1
+			).toString(),
+			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
+
+		_testPutCustomObjectEntryExternalReferenceCode(
+			StringBundler.concat(
+				_objectDefinition1.getRESTContextPath(), StringPool.SLASH,
+				jsonObject.getLong("id")),
+			_ERC_VALUE_2);
+
+		_testPutCustomObjectEntryExternalReferenceCode(
+			StringBundler.concat(
+				_objectDefinition1.getRESTContextPath(),
+				"/by-external-reference-code/", _ERC_VALUE_2),
+			_ERC_VALUE_3);
+	}
+
+	@Test
 	public void testPutCustomObjectEntryUnlinkNestedCustomObjectEntries()
 		throws Exception {
 
@@ -7086,6 +7111,21 @@ public class ObjectEntryResourceTest {
 			Http.Method.POST);
 
 		Assert.assertEquals("BAD_REQUEST", jsonObject.get("status"));
+	}
+
+	private void _testPutCustomObjectEntryExternalReferenceCode(
+			String endpoint, String externalReferenceCode)
+		throws Exception {
+
+		JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				"externalReferenceCode", externalReferenceCode
+			).toString(),
+			endpoint, Http.Method.PUT);
+
+		Assert.assertEquals(
+			externalReferenceCode,
+			jsonObject.getString("externalReferenceCode"));
 	}
 
 	private void _testPutCustomObjectEntryUnlinkNestedCustomObjectEntries(
