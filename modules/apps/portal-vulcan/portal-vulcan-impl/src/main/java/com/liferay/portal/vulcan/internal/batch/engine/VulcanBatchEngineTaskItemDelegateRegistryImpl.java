@@ -159,7 +159,8 @@ public class VulcanBatchEngineTaskItemDelegateRegistryImpl
 				serviceReference.getProperty("batch.planner.export.enabled"));
 			boolean batchPlannerImportEnabled = GetterUtil.getBoolean(
 				serviceReference.getProperty("batch.planner.import.enabled"));
-			List<String> companyIdStrings = _companyIdStrings(serviceReference);
+			List<String> companyIdStrings = _getCompanyIdStrings(
+				serviceReference);
 			String entityClassName = (String)serviceReference.getProperty(
 				"batch.engine.entity.class.name");
 			VulcanBatchEngineTaskItemDelegate<?>
@@ -229,7 +230,8 @@ public class VulcanBatchEngineTaskItemDelegateRegistryImpl
 			VulcanBatchEngineTaskItemDelegate<?>
 				vulcanBatchEngineTaskItemDelegate) {
 
-			List<String> companyIdStrings = _companyIdStrings(serviceReference);
+			List<String> companyIdStrings = _getCompanyIdStrings(
+				serviceReference);
 
 			if (companyIdStrings == null) {
 				return;
@@ -292,7 +294,8 @@ public class VulcanBatchEngineTaskItemDelegateRegistryImpl
 			VulcanBatchEngineTaskItemDelegate<?>
 				vulcanBatchEngineTaskItemDelegate) {
 
-			List<String> companyIdStrings = _companyIdStrings(serviceReference);
+			List<String> companyIdStrings = _getCompanyIdStrings(
+				serviceReference);
 
 			String entityClassName = (String)serviceReference.getProperty(
 				"batch.engine.entity.class.name");
@@ -337,7 +340,7 @@ public class VulcanBatchEngineTaskItemDelegateRegistryImpl
 			_bundleContext = bundleContext;
 		}
 
-		private List<String> _companyIdStrings(
+		private List<String> _getCompanyIdStrings(
 			ServiceReference<?> serviceReference) {
 
 			Object companyIdObject = serviceReference.getProperty("companyId");

@@ -209,7 +209,6 @@ public class ExportTaskResourceTest {
 					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME, false)),
 			ObjectDefinitionConstants.SCOPE_COMPANY,
 			TestPropsValues.getUserId());
-
 		_objectDefinition2 = ObjectDefinitionTestUtil.publishObjectDefinition(
 			"A" + StringUtil.toUpperCase(objectDefinitionName),
 			Collections.singletonList(
