@@ -387,6 +387,43 @@ public class Settings implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Object themeSettings;
 
+	@Schema(
+		description = "The Client Extension for the theme spritemap of a page"
+	)
+	@Valid
+	public ClientExtension getThemeSpritemapClientExtension() {
+		return themeSpritemapClientExtension;
+	}
+
+	public void setThemeSpritemapClientExtension(
+		ClientExtension themeSpritemapClientExtension) {
+
+		this.themeSpritemapClientExtension = themeSpritemapClientExtension;
+	}
+
+	@JsonIgnore
+	public void setThemeSpritemapClientExtension(
+		UnsafeSupplier<ClientExtension, Exception>
+			themeSpritemapClientExtensionUnsafeSupplier) {
+
+		try {
+			themeSpritemapClientExtension =
+				themeSpritemapClientExtensionUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(
+		description = "The Client Extension for the theme spritemap of a page"
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected ClientExtension themeSpritemapClientExtension;
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -579,6 +616,16 @@ public class Settings implements Serializable {
 			else {
 				sb.append(themeSettings);
 			}
+		}
+
+		if (themeSpritemapClientExtension != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"themeSpritemapClientExtension\": ");
+
+			sb.append(String.valueOf(themeSpritemapClientExtension));
 		}
 
 		sb.append("}");
