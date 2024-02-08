@@ -45,10 +45,22 @@ public interface ObjectRelationshipService extends BaseService {
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectRelationshipServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the object relationship remote service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ObjectRelationshipServiceUtil} if injection and service tracking are not available.
 	 */
+
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x)
+	 */
+	@Deprecated
 	public ObjectRelationship addObjectRelationship(
 			long objectDefinitionId1, long objectDefinitionId2,
 			long parameterObjectFieldId, String deletionType,
 			Map<Locale, String> labelMap, String name, String type)
+		throws PortalException;
+
+	public ObjectRelationship addObjectRelationship(
+			String externalReferenceCode, long objectDefinitionId1,
+			long objectDefinitionId2, long parameterObjectFieldId,
+			String deletionType, Map<Locale, String> labelMap, String name,
+			String type)
 		throws PortalException;
 
 	public void addObjectRelationshipMappingTableValues(
@@ -58,6 +70,12 @@ public interface ObjectRelationshipService extends BaseService {
 
 	public ObjectRelationship deleteObjectRelationship(
 			long objectRelationshipId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ObjectRelationship fetchObjectRelationshipByExternalReferenceCode(
+			String externalReferenceCode, long companyId,
+			long objectDefinitionId1)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -81,9 +99,19 @@ public interface ObjectRelationshipService extends BaseService {
 	 */
 	public String getOSGiServiceIdentifier();
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x)
+	 */
+	@Deprecated
 	public ObjectRelationship updateObjectRelationship(
 			long objectRelationshipId, long parameterObjectFieldId,
 			String deletionType, boolean edge, Map<Locale, String> labelMap)
+		throws PortalException;
+
+	public ObjectRelationship updateObjectRelationship(
+			String externalReferenceCode, long objectRelationshipId,
+			long parameterObjectFieldId, String deletionType, boolean edge,
+			Map<Locale, String> labelMap)
 		throws PortalException;
 
 }

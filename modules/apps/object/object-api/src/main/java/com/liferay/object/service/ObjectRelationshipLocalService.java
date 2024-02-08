@@ -60,6 +60,11 @@ public interface ObjectRelationshipLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectRelationshipLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the object relationship local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ObjectRelationshipLocalServiceUtil} if injection and service tracking are not available.
 	 */
+
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x)
+	 */
+	@Deprecated
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectRelationship addObjectRelationship(
 			long userId, long objectDefinitionId1, long objectDefinitionId2,
@@ -80,6 +85,14 @@ public interface ObjectRelationshipLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectRelationship addObjectRelationship(
 		ObjectRelationship objectRelationship);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public ObjectRelationship addObjectRelationship(
+			String externalReferenceCode, long userId, long objectDefinitionId1,
+			long objectDefinitionId2, long parameterObjectFieldId,
+			String deletionType, Map<Locale, String> labelMap, String name,
+			String type)
+		throws PortalException;
 
 	public void addObjectRelationshipMappingTableValues(
 			long userId, long objectRelationshipId, long primaryKey1,
@@ -239,6 +252,10 @@ public interface ObjectRelationshipLocalService
 		long objectRelationshipId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ObjectRelationship fetchObjectRelationshipByExternalReferenceCode(
+		String externalReferenceCode, long companyId, long objectDefinitionId1);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ObjectRelationship fetchObjectRelationshipByObjectDefinitionId(
 		long objectDefinitionId, String name);
 
@@ -382,6 +399,10 @@ public interface ObjectRelationshipLocalService
 		ObjectDefinition objectDefinition1,
 		ObjectDefinitionLocalService objectDefinitionLocalService);
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x)
+	 */
+	@Deprecated
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectRelationship updateObjectRelationship(
 			long objectRelationshipId, long parameterObjectFieldId,
@@ -401,5 +422,12 @@ public interface ObjectRelationshipLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectRelationship updateObjectRelationship(
 		ObjectRelationship objectRelationship);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public ObjectRelationship updateObjectRelationship(
+			String externalReferenceCode, long objectRelationshipId,
+			long parameterObjectFieldId, String deletionType, boolean edge,
+			Map<Locale, String> labelMap)
+		throws PortalException;
 
 }

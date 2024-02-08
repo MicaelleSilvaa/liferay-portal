@@ -28,6 +28,10 @@ public class ObjectRelationshipServiceWrapper
 		_objectRelationshipService = objectRelationshipService;
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x)
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.object.model.ObjectRelationship addObjectRelationship(
 			long objectDefinitionId1, long objectDefinitionId2,
@@ -39,6 +43,20 @@ public class ObjectRelationshipServiceWrapper
 		return _objectRelationshipService.addObjectRelationship(
 			objectDefinitionId1, objectDefinitionId2, parameterObjectFieldId,
 			deletionType, labelMap, name, type);
+	}
+
+	@Override
+	public com.liferay.object.model.ObjectRelationship addObjectRelationship(
+			String externalReferenceCode, long objectDefinitionId1,
+			long objectDefinitionId2, long parameterObjectFieldId,
+			String deletionType,
+			java.util.Map<java.util.Locale, String> labelMap, String name,
+			String type)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectRelationshipService.addObjectRelationship(
+			externalReferenceCode, objectDefinitionId1, objectDefinitionId2,
+			parameterObjectFieldId, deletionType, labelMap, name, type);
 	}
 
 	@Override
@@ -58,6 +76,18 @@ public class ObjectRelationshipServiceWrapper
 
 		return _objectRelationshipService.deleteObjectRelationship(
 			objectRelationshipId);
+	}
+
+	@Override
+	public com.liferay.object.model.ObjectRelationship
+			fetchObjectRelationshipByExternalReferenceCode(
+				String externalReferenceCode, long companyId,
+				long objectDefinitionId1)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectRelationshipService.
+			fetchObjectRelationshipByExternalReferenceCode(
+				externalReferenceCode, companyId, objectDefinitionId1);
 	}
 
 	@Override
@@ -97,6 +127,10 @@ public class ObjectRelationshipServiceWrapper
 		return _objectRelationshipService.getOSGiServiceIdentifier();
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x)
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.object.model.ObjectRelationship updateObjectRelationship(
 			long objectRelationshipId, long parameterObjectFieldId,
@@ -107,6 +141,18 @@ public class ObjectRelationshipServiceWrapper
 		return _objectRelationshipService.updateObjectRelationship(
 			objectRelationshipId, parameterObjectFieldId, deletionType, edge,
 			labelMap);
+	}
+
+	@Override
+	public com.liferay.object.model.ObjectRelationship updateObjectRelationship(
+			String externalReferenceCode, long objectRelationshipId,
+			long parameterObjectFieldId, String deletionType, boolean edge,
+			java.util.Map<java.util.Locale, String> labelMap)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectRelationshipService.updateObjectRelationship(
+			externalReferenceCode, objectRelationshipId, parameterObjectFieldId,
+			deletionType, edge, labelMap);
 	}
 
 	@Override
