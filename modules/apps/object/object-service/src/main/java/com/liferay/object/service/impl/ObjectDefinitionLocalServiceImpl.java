@@ -1210,7 +1210,7 @@ public class ObjectDefinitionLocalServiceImpl
 		for (ObjectAction objectAction : objectActions) {
 			_objectActionLocalService.addOrUpdateObjectAction(
 				objectAction.getExternalReferenceCode(), 0, userId,
-				objectDefinitionId, objectAction.getActive(),
+				objectDefinitionId, objectAction.isActive(),
 				objectAction.getConditionExpression(),
 				objectAction.getDescription(),
 				objectAction.getErrorMessageMap(), objectAction.getLabelMap(),

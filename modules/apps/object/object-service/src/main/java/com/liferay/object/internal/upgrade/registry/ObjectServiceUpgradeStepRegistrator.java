@@ -326,7 +326,7 @@ public class ObjectServiceUpgradeStepRegistrator
 				"ObjectDefinition", "storageType", "VARCHAR(255) null"),
 			UpgradeProcessFactory.alterColumnType(
 				"ObjectValidationRule", "engine", "VARCHAR(255) null"));
-		
+
 		registry.register("7.1.1", "7.1.2", new SchemaUpgradeProcess());
 	}
 

@@ -4184,16 +4184,17 @@ public class ObjectEntryLocalServiceImpl
 				Serializable value = _getLocalizedValue(
 					languageId, localizedValues);
 
+				Column<DynamicObjectDefinitionLocalizationTable, String>
+					languageIdColumn =
+						((DynamicObjectDefinitionLocalizationTable)table).
+							getLanguageIdColumn();
+
 				_validateUniqueValueConstraintViolation(
 					column, objectField,
 					column.eq(
 						value
 					).and(
-						((DynamicObjectDefinitionLocalizationTable)table).
-							getLanguageIdColumn(
-							).eq(
-								languageId
-							)
+						languageIdColumn.eq(languageId)
 					),
 					sqlException, table, user, value);
 			}
