@@ -4722,7 +4722,6 @@ public class ObjectEntryResourceTest {
 
 		_testPatchPutCustomObjectEntryExternalReferenceCode(
 			Http.Method.PATCH, jsonObject.getLong("id"));
-
 		_testPatchPutCustomObjectEntryExternalReferenceCode(
 			Http.Method.PUT, jsonObject.getLong("id"));
 	}
@@ -4749,7 +4748,6 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithDuplicateExternalReferenceCode(
 			Http.Method.PATCH, _objectDefinition1,
 			_siteScopedObjectDefinition1);
-
 		_testPatchPutCustomObjectEntryWithDuplicateExternalReferenceCode(
 			Http.Method.PUT, _objectDefinition2, _siteScopedObjectDefinition2);
 	}
@@ -6751,7 +6749,6 @@ public class ObjectEntryResourceTest {
 				_objectDefinition1.getRESTContextPath(), StringPool.SLASH,
 				objectEntryId),
 			_ERC_VALUE_2, httpMethod);
-
 		_testPatchPutCustomObjectEntryExternalReferenceCode(
 			StringBundler.concat(
 				_objectDefinition1.getRESTContextPath(),
@@ -7398,7 +7395,6 @@ public class ObjectEntryResourceTest {
 				objectDefinition.getRESTContextPath(),
 				"/by-external-reference-code/", _ERC_VALUE_1),
 			httpMethod);
-
 		_testPatchPutCustomObjectEntryWithDuplicateExternalReferenceCode(
 			_getEndpoint(
 				TestPropsValues.getGroupId(), siteScopedObjectDefinition),
@@ -7423,7 +7419,6 @@ public class ObjectEntryResourceTest {
 					"externalReferenceCode", _ERC_VALUE_1
 				).toString(),
 				endpoint1, Http.Method.POST));
-
 		Assert.assertEquals(
 			200,
 			HTTPTestUtil.invokeToHttpCode(
