@@ -36,6 +36,7 @@ import com.liferay.object.rest.test.util.ObjectEntryTestUtil;
 import com.liferay.object.rest.test.util.ObjectFieldTestUtil;
 import com.liferay.object.rest.test.util.ObjectRelationshipTestUtil;
 import com.liferay.object.rest.test.util.UserAccountTestUtil;
+import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
@@ -5663,6 +5664,20 @@ public class ObjectEntryResourceTest {
 
 	private String _escape(String string) {
 		return URLCodec.encodeURL(string);
+	}
+
+	private String _getEndpoint(
+		long groupId, ObjectDefinition objectDefinition) {
+
+		ObjectScopeProvider objectScopeProvider =
+			_objectScopeProviderRegistry.getObjectScopeProvider(
+				objectDefinition.getScope());
+
+		if (objectScopeProvider.isGroupAware()) {
+			return objectDefinition.getRESTContextPath() + "/scopes/" + groupId;
+		}
+
+		return objectDefinition.getRESTContextPath();
 	}
 
 	private NestedFieldsContext _getNestedFieldsContext(String nestedFields) {
