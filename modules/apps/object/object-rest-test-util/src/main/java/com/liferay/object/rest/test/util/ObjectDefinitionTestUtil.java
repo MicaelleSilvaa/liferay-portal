@@ -53,4 +53,22 @@ public class ObjectDefinitionTestUtil {
 			userId, objectDefinition.getObjectDefinitionId());
 	}
 
+	public static ObjectDefinition publishObjectDefinition(
+			String name, List<ObjectField> objectFields, String scope,
+			long userId)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionLocalServiceUtil.addCustomObjectDefinition(
+				userId, 0, false, false,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				name, null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				true, scope, ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
+				objectFields);
+
+		return ObjectDefinitionLocalServiceUtil.publishCustomObjectDefinition(
+			userId, objectDefinition.getObjectDefinitionId());
+	}
+
 }

@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.PortletCategory;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.HTTPTestUtil;
@@ -416,6 +417,9 @@ public class OpenAPIResourceTest {
 		"x" + RandomTestUtil.randomString();
 
 	private static Company _company;
+
+	@Inject
+	private static CompanyLocalService _companyLocalService;
 
 	@Inject
 	private ObjectActionLocalService _objectActionLocalService;
