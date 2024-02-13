@@ -1,7 +1,7 @@
 dependencies {
 	testCompileOnly group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
 	testCompileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
-	
+
 	testIntegrationImplementation group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.13.4"
 	testIntegrationImplementation group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.13.4"
 	testIntegrationImplementation group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.13.4.2"
@@ -11,7 +11,6 @@ dependencies {
 	testIntegrationImplementation project(":apps:headless:headless-batch-engine:headless-batch-engine-api")
 	testIntegrationImplementation project(":apps:headless:headless-batch-engine:headless-batch-engine-client")
 	testIntegrationImplementation project(":apps:object:object-api")
-	testIntegrationImplementation project(":apps:object:object-test-util")
 	testIntegrationImplementation project(":apps:portal-vulcan:portal-vulcan-api")
 	testIntegrationImplementation project(":apps:static:osgi:osgi-util")
 	testIntegrationImplementation project(":test:arquillian-extension-junit-bridge")

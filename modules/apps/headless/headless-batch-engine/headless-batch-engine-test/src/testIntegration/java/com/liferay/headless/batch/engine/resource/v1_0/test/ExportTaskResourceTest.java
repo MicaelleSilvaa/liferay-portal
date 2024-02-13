@@ -14,7 +14,8 @@ import com.liferay.headless.batch.engine.client.resource.v1_0.ImportTaskResource
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
-import com.liferay.object.test.util.ObjectDefinitionTestUtil;
+import com.liferay.object.model.ObjectField;
+import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -39,6 +40,7 @@ import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 import java.io.InputStream;
 
@@ -201,7 +203,7 @@ public class ExportTaskResourceTest {
 
 		_user = UserTestUtil.addUser(_company);
 
-		_objectDefinition1 = ObjectDefinitionTestUtil.publishObjectDefinition(
+		_objectDefinition1 = _publishObjectDefinition(
 			"A" + StringUtil.toLowerCase(objectDefinitionName),
 			Collections.singletonList(
 				ObjectFieldUtil.createObjectField(
@@ -209,7 +211,7 @@ public class ExportTaskResourceTest {
 					RandomTestUtil.randomString(), _OBJECT_FIELD_NAME, false)),
 			ObjectDefinitionConstants.SCOPE_COMPANY,
 			TestPropsValues.getUserId());
-		_objectDefinition2 = ObjectDefinitionTestUtil.publishObjectDefinition(
+		_objectDefinition2 = _publishObjectDefinition(
 			"A" + StringUtil.toUpperCase(objectDefinitionName),
 			Collections.singletonList(
 				ObjectFieldUtil.createObjectField(
@@ -282,6 +284,24 @@ public class ExportTaskResourceTest {
 				break;
 			}
 		}
+	}
+
+	private ObjectDefinition _publishObjectDefinition(
+			String name, List<ObjectField> objectFields, String scope,
+			long userId)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionLocalServiceUtil.addCustomObjectDefinition(
+				userId, 0, false, false,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				name, null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				true, scope, ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
+				objectFields);
+
+		return ObjectDefinitionLocalServiceUtil.publishCustomObjectDefinition(
+			userId, objectDefinition.getObjectDefinitionId());
 	}
 
 	private void _testPostExportTask(String className) throws Exception {
