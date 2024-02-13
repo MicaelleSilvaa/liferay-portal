@@ -199,7 +199,6 @@ public class DisplayPageTypeSiteNavigationMenuItemTypeTest {
 			siteNavigationMenuItemType.hasPermission(
 				PermissionThreadLocal.getPermissionChecker(),
 				siteNavigationMenuItem));
-
 		Assert.assertFalse(
 			siteNavigationMenuItemType.hasPermission(
 				PermissionCheckerFactoryUtil.create(
