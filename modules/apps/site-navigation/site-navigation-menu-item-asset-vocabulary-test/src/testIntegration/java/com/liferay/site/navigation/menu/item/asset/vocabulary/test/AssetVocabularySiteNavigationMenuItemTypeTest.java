@@ -604,7 +604,6 @@ public class AssetVocabularySiteNavigationMenuItemTypeTest {
 			siteNavigationMenuItemType.hasPermission(
 				PermissionThreadLocal.getPermissionChecker(),
 				siteNavigationMenuItem));
-
 		Assert.assertFalse(
 			siteNavigationMenuItemType.hasPermission(
 				PermissionCheckerFactoryUtil.create(
