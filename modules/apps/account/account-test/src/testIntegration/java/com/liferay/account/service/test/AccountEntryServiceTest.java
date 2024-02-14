@@ -12,6 +12,7 @@ import com.liferay.account.service.test.util.AccountEntryTestUtil;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.ListType;
 import com.liferay.portal.kernel.model.ListTypeConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -52,15 +53,15 @@ public class AccountEntryServiceTest {
 
 		AccountEntry accountEntry1 = AccountEntryTestUtil.addAccountEntry();
 
+		ListType listType = _listTypeLocalService.getListType(
+			"personal", ListTypeConstants.CONTACT_ADDRESS);
+
 		Address address = _addressLocalService.addAddress(
 			null, accountEntry1.getUserId(), AccountEntry.class.getName(),
 			accountEntry1.getAccountEntryId(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(), null,
 			null, RandomTestUtil.randomString(), null, 0, 0,
-			_listTypeLocalService.getListTypeId(
-				accountEntry1.getCompanyId(), "personal",
-				ListTypeConstants.CONTACT_ADDRESS),
-			false, false, "1234567890",
+			listType.getListTypeId(), false, false, "1234567890",
 			ServiceContextTestUtil.getServiceContext());
 
 		Company company = CompanyTestUtil.addCompany();
