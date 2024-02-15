@@ -16,4 +16,7 @@ public interface BatchEngineTaskItemDelegateRegistry {
 	public BatchEngineTaskItemDelegate<?> getBatchEngineTaskItemDelegate(
 		long companyId, String itemClassName, String taskItemDelegateName);
 
+	public BatchEngineTaskItemDelegate<?> getBatchEngineTaskItemDelegate(
+		String itemClassName, String taskItemDelegateName);
+
 }
