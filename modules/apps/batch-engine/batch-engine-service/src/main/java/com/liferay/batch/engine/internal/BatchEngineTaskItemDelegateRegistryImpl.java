@@ -52,6 +52,19 @@ public class BatchEngineTaskItemDelegateRegistryImpl
 		return null;
 	}
 
+	@Override
+	public BatchEngineTaskItemDelegate<?> getBatchEngineTaskItemDelegate(
+		String itemClassName, String taskItemDelegateName) {
+
+		String key = _encodeKey(null, itemClassName, taskItemDelegateName);
+
+		if (_serviceTrackerMap.containsKey(key)) {
+			return _serviceTrackerMap.getService(key);
+		}
+
+		return null;
+	}
+
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
