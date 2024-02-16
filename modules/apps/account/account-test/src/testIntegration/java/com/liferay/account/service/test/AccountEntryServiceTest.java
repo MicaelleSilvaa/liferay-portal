@@ -52,7 +52,6 @@ public class AccountEntryServiceTest {
 			PermissionThreadLocal.getPermissionChecker();
 
 		AccountEntry accountEntry1 = AccountEntryTestUtil.addAccountEntry();
-
 		ListType listType = _listTypeLocalService.getListType(
 			"personal", ListTypeConstants.CONTACT_ADDRESS);
 
