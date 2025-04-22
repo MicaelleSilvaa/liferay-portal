@@ -4170,6 +4170,14 @@
 		"to": "fetchCommercePriceEntryByExternalReferenceCode(param#1#, param#0#)"
 	},
 	{
+		"from": "regex:(?<hostName>Fragment-Host:\\s+[^;]+;)bundle-version=\"[^\"]+\"",
+		"issueKey": "LPD-48184",
+		"to": "${hostName}",
+		"validExtensions": [
+			"bnd"
+		]
+	},
+	{
 		"from": "CookieKeys.COMMERCE_CONTINUE_AS_GUEST",
 		"issueKey": "LPS-159679",
 		"newImports": [
