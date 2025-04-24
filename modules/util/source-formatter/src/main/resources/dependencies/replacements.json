@@ -2340,6 +2340,15 @@
 		"to": "CPTaxCategoryNameComparator.getInstance(param#0#)"
 	},
 	{
+		"from": "regex:(?<variableName>\\w+)\\.(?<prefixMethodName>isInTrashExplicitly|isInTrashImplicitly)\\(\\)",
+		"issueKey": "LPD-27178",
+		"newImports": [
+			"com.liferay.trash.TrashHelper"
+		],
+		"newReference": "TrashHelper _trashHelper",
+		"to": "_trashHelper.${prefixMethodName}(${variableName})"
+	},
+	{
 		"from": "new CommercePriceEntryUOMCreateDateComparator()",
 		"issueKey": "LPD-28067",
 		"skipParametersValidation": true,
