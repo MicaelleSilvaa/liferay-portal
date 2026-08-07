@@ -1,0 +1,42 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+package com.liferay.source.formatter.dependencies.upgrade;
+
+import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.portlet.BasePortletProvider;
+import com.liferay.portal.kernel.portlet.EditPortletProvider;
+import com.liferay.portal.kernel.portlet.ViewPortletProvider;
+import com.liferay.portal.kernel.service.UserLocalService;
+
+@Component(
+	property = "model.class.name=" + TestConstants.CLASS_NAME_TEST_ENTRY,
+	service = {EditPortletProvider.class, Foo.class, ViewPortletProvider.class}
+)
+public class UpgradeJavaPortletProviderWithPrivateMembersCheck
+	extends BasePortletProvider
+	implements EditPortletProvider, Foo, ViewPortletProvider {
+
+	@Override
+	public String getPortletName() {
+		return _getPortletName();
+	}
+
+	@Override
+	public boolean isVisible() {
+		return true;
+	}
+
+	private String _getPortletName() {
+		return _language.get(LocaleUtil.getDefault(), TestPortletKeys.TEST);
+	}
+
+	@Reference
+	private Language _language;
+
+	@Reference
+	private UserLocalService _userLocalService;
+
+}
