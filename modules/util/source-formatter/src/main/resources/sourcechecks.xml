@@ -1996,6 +1996,10 @@
 			<category name="Upgrade" />
 			<description name="Adds FragmentCollectionKey to Component annotation in classes that extend `BaseFragmentCollectionContributor`" />
 		</check>
+		<check name="UpgradeJavaCTDisplayRendererGetContentCheck">
+			<category name="Upgrade" />
+			<description name="Replace the `getContent` method with `renderPreview` in classes that extend `BaseCTDisplayRenderer`." />
+		</check>
 		<check name="UpgradeJavaDDMFormValuesSerializerTrackerCheck">
 			<category name="Upgrade" />
 			<description name="Replaces the references of `DDMFormValuesSerializerTracker` class and also its methods usages." />
