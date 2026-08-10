@@ -14,6 +14,7 @@ UpgradeImportsCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Replaces dep
 UpgradeJSPFieldSetGroupCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Run code to remove 'fieldset-group' tag. |
 UpgradeJavaAssetEntryAssetCategoriesCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Replaces methods referring to class `AssetEntryAssetCategory` in class `AssetCategoryLocalService` with equivalent methods in class `AssetEntryAssetCategoryRelLocalService`. |
 UpgradeJavaBaseFragmentCollectionContributorExtendedClassesCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Adds FragmentCollectionKey to Component annotation in classes that extend `BaseFragmentCollectionContributor` |
+UpgradeJavaCTDisplayRendererGetContentCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Replace the `getContent` method with `renderPreview` in classes that extend `BaseCTDisplayRenderer`. |
 UpgradeJavaDDMFormValuesSerializerTrackerCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Replaces the references of `DDMFormValuesSerializerTracker` class and also its methods usages. |
 UpgradeJavaDisplayPageInfoItemCapabilityCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Replace all references of DisplayPageInfoItemCapability to InfoItemCapability |
 UpgradeJavaFDSDataProviderCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | Upgrade implementations of ClayDataSetDataProvider and CommerceDataSetDataProvider to FDSDataSetDataProvider |
