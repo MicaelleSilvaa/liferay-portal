@@ -85,6 +85,13 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testUpgradeJavaCTDisplayRendererGetContentCheck()
+		throws Exception {
+
+		test("upgrade/UpgradeJavaCTDisplayRendererGetContentCheck.testjava");
+	}
+
+	@Test
 	public void testUpgradeJavaDDMFormValuesSerializerTrackerCheck()
 		throws Exception {
 
