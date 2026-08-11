@@ -6486,6 +6486,14 @@
 		]
 	},
 	{
+		"classNames": [
+			"HttpComponentsUtil"
+		],
+		"from": "getParameterMap()",
+		"hasMessage": true,
+		"issueKey": "LPD-101883"
+	},
+	{
 		"from": "regex:MultiVMPoolUtil\\s*.\\s*getPortalCache\\(\\s*(?<prefixMethodName>[\\s\\S]*?)\\)",
 		"issueKey": "LPS-153962",
 		"newImports": [
