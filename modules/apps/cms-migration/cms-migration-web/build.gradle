@@ -1,0 +1,34 @@
+dependencies {
+	compileOnly group: "com.liferay.jakarta.portlet", name: "com.liferay.jakarta.portlet-api", version: "4.0.0"
+	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
+	compileOnly group: "com.liferay.portal", name: "com.liferay.util.taglib", version: "default"
+	compileOnly group: "jakarta.servlet", name: "jakarta.servlet-api", version: "6.0.0"
+	compileOnly group: "jakarta.servlet.jsp", name: "jakarta.servlet.jsp-api", version: "3.1.1"
+	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations", version: "1.4.0"
+	compileOnly group: "org.osgi", name: "osgi.core", version: "6.0.0"
+	compileOnly project(":apps:application-list:application-list-api")
+	compileOnly project(":apps:asset:asset-display-page-api")
+	compileOnly project(":apps:asset:asset-list-api")
+	compileOnly project(":apps:asset:asset-publisher-api")
+	compileOnly project(":apps:blogs:blogs-api")
+	compileOnly project(":apps:depot:depot-api")
+	compileOnly project(":apps:document-library:document-library-api")
+	compileOnly project(":apps:dynamic-data-mapping:dynamic-data-mapping-api")
+	compileOnly project(":apps:dynamic-data-mapping:dynamic-data-mapping-form-field-type-api")
+	compileOnly project(":apps:fragment:fragment-api")
+	compileOnly project(":apps:friendly-url:friendly-url-api")
+	compileOnly project(":apps:frontend-taglib:frontend-taglib")
+	compileOnly project(":apps:frontend-taglib:frontend-taglib-clay")
+	compileOnly project(":apps:info:info-api")
+	compileOnly project(":apps:journal:journal-api")
+	compileOnly project(":apps:layout:layout-page-template-api")
+	compileOnly project(":apps:list-type:list-type-api")
+	compileOnly project(":apps:object:object-api")
+	compileOnly project(":apps:portlet-display-template:portlet-display-template-api")
+	compileOnly project(":apps:site-navigation:site-navigation-api")
+	compileOnly project(":apps:template:template-api")
+	compileOnly project(":core:petra:petra-function")
+	compileOnly project(":core:petra:petra-io")
+	compileOnly project(":core:petra:petra-lang")
+	compileOnly project(":core:petra:petra-string")
+}
