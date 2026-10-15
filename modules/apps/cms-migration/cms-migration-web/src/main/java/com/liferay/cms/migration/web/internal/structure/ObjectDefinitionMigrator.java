@@ -308,12 +308,23 @@ public class ObjectDefinitionMigrator {
 		String businessType, Map<Locale, String> labelMap, boolean localized,
 		String name, boolean required) {
 
+		String dbType = CMSMigrationDDMFormFieldUtil.getDBType(businessType);
+
+		String indexedLanguageId = null;
+
+		if (dbType.equals(ObjectFieldConstants.DB_TYPE_CLOB) ||
+			dbType.equals(ObjectFieldConstants.DB_TYPE_STRING)) {
+
+			indexedLanguageId = LocaleUtil.toLanguageId(
+				LocaleUtil.getSiteDefault());
+		}
+
 		ObjectFieldBuilder objectFieldBuilder = new ObjectFieldBuilder();
 
 		return objectFieldBuilder.businessType(
 			businessType
 		).dbType(
-			CMSMigrationDDMFormFieldUtil.getDBType(businessType)
+			dbType
 		).externalReferenceCode(
 			name
 		).indexed(
@@ -321,7 +332,7 @@ public class ObjectDefinitionMigrator {
 		).indexedAsKeyword(
 			false
 		).indexedLanguageId(
-			LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault())
+			indexedLanguageId
 		).labelMap(
 			labelMap
 		).localized(

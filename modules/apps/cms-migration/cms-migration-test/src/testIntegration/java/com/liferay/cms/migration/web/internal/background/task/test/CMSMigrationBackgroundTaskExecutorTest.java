@@ -13,6 +13,11 @@ import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
+import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.journal.constants.JournalContentPortletKeys;
@@ -21,10 +26,13 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.layout.test.util.ContentLayoutTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
+import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
@@ -53,6 +61,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -193,6 +202,39 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				"CMS_MIGRATION_JOURNAL_ARTICLE_" +
 					_journalArticle.getResourcePrimKey()
 			).getObjectEntryId());
+	}
+
+	@Test
+	public void testExecuteWithNumericDDMFormField() throws Exception {
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm("name");
+
+		ddmForm.addDDMFormField(
+			DDMFormTestUtil.createDDMFormField(
+				"numeric", "numeric", DDMFormFieldTypeConstants.NUMERIC,
+				"double", false, false, false));
+
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName(), ddmForm);
+
+		_journalArticle = JournalTestUtil.addArticleWithXMLContent(
+			_group.getGroupId(),
+			DDMStructureTestUtil.getSampleStructuredContent(),
+			ddmStructure.getStructureKey(), null);
+
+		_assertSuccessful(_execute(false));
+
+		ObjectEntry objectEntry = _getObjectEntry(
+			"CMS_MIGRATION_DDM_STRUCTURE_" + ddmStructure.getStructureId(),
+			"CMS_MIGRATION_JOURNAL_ARTICLE_" +
+				_journalArticle.getResourcePrimKey());
+
+		ObjectField objectField = _objectFieldLocalService.getObjectField(
+			objectEntry.getObjectDefinitionId(), "numeric");
+
+		Assert.assertEquals(
+			ObjectFieldConstants.DB_TYPE_DOUBLE, objectField.getDBType());
+		Assert.assertTrue(
+			Validator.isNull(objectField.getIndexedLanguageId()));
 	}
 
 	@Test
@@ -406,6 +448,9 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 	@Inject
 	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Inject
+	private ObjectFieldLocalService _objectFieldLocalService;
 
 	@Inject
 	private Portal _portal;
