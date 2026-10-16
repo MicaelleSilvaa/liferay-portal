@@ -17,8 +17,10 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 <%@ page import="com.liferay.cms.migration.web.internal.display.context.CMSContentDisplayDisplayContext" %><%@
 page import="com.liferay.cms.migration.web.internal.display.context.CMSMigrationDisplayContext" %><%@
 page import="com.liferay.cms.migration.web.internal.migration.CMSMigrationReport" %><%@
+page import="com.liferay.depot.exception.DepotEntryNameException" %><%@
 page import="com.liferay.depot.model.DepotEntry" %><%@
 page import="com.liferay.object.model.ObjectEntry" %><%@
+page import="com.liferay.petra.string.StringPool" %><%@
 page import="com.liferay.portal.kernel.backgroundtask.BackgroundTask" %><%@
 page import="com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants" %><%@
 page import="com.liferay.portal.kernel.json.JSONObject" %><%@

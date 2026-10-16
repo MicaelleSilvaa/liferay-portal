@@ -19,6 +19,7 @@ boolean inProgress = false;
 >
 	<liferay-ui:success key="migrationStarted" message="cms-migration-started" />
 
+	<liferay-ui:error exception="<%= DepotEntryNameException.class %>" message="please-enter-a-valid-name" />
 	<liferay-ui:error exception="<%= Exception.class %>" message="an-unexpected-error-occurred" />
 
 	<clay:sheet>
@@ -50,14 +51,21 @@ boolean inProgress = false;
 
 				</aui:select>
 
+				<%
+				List<DepotEntry> spaces = cmsMigrationDisplayContext.getSpaces();
+				%>
+
 				<aui:select label="cms-migration-target-space" name="depotEntryId">
+					<aui:option label="cms-migration-create-new-space" selected="<%= spaces.isEmpty() %>" value="0" />
 
 					<%
-					for (DepotEntry depotEntry : cmsMigrationDisplayContext.getSpaces()) {
+					for (int i = 0; i < spaces.size(); i++) {
+						DepotEntry depotEntry = spaces.get(i);
+
 						Group depotGroup = depotEntry.getGroup();
 					%>
 
-						<aui:option label="<%= HtmlUtil.escape(depotGroup.getDescriptiveName(locale)) %>" value="<%= depotEntry.getDepotEntryId() %>" />
+						<aui:option label="<%= HtmlUtil.escape(depotGroup.getDescriptiveName(locale)) %>" selected="<%= i == 0 %>" value="<%= depotEntry.getDepotEntryId() %>" />
 
 					<%
 					}
@@ -65,7 +73,9 @@ boolean inProgress = false;
 
 				</aui:select>
 
-				<aui:input helpMessage="cms-migration-new-space-help" label="cms-migration-new-space-name" name="spaceName" type="text" />
+				<div class="<%= spaces.isEmpty() ? StringPool.BLANK : "d-none" %>" id="<portlet:namespace />spaceNameContainer">
+					<aui:input label="cms-migration-new-space-name" name="spaceName" type="text" />
+				</div>
 			</clay:sheet-section>
 
 			<clay:sheet-section>
@@ -242,6 +252,22 @@ boolean inProgress = false;
 		</clay:sheet-section>
 	</clay:sheet>
 </clay:container-fluid>
+
+<aui:script>
+	const depotEntryIdSelect = document.getElementById(
+		'<portlet:namespace />depotEntryId'
+	);
+	const spaceNameContainer = document.getElementById(
+		'<portlet:namespace />spaceNameContainer'
+	);
+
+	depotEntryIdSelect.addEventListener('change', () => {
+		spaceNameContainer.classList.toggle(
+			'd-none',
+			depotEntryIdSelect.value !== '0'
+		);
+	});
+</aui:script>
 
 <c:if test="<%= inProgress %>">
 	<aui:script>

@@ -8,6 +8,7 @@ package com.liferay.cms.migration.web.internal.portlet.action;
 import com.liferay.cms.migration.web.internal.background.task.CMSMigrationBackgroundTaskExecutor;
 import com.liferay.cms.migration.web.internal.constants.CMSMigrationPortletKeys;
 import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.exception.DepotEntryNameException;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.petra.string.StringPool;
@@ -24,6 +25,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -108,23 +110,24 @@ public class StartCMSMigrationMVCActionCommand extends BaseMVCActionCommand {
 	private DepotEntry _getDepotEntry(ActionRequest actionRequest)
 		throws Exception {
 
+		long depotEntryId = ParamUtil.getLong(actionRequest, "depotEntryId");
+
+		if (depotEntryId > 0) {
+			return _depotEntryLocalService.getDepotEntry(depotEntryId);
+		}
+
 		String spaceName = ParamUtil.getString(actionRequest, "spaceName");
 
 		if (Validator.isNull(spaceName)) {
-			return _depotEntryLocalService.getDepotEntry(
-				ParamUtil.getLong(actionRequest, "depotEntryId"));
+			throw new DepotEntryNameException();
 		}
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			DepotEntry.class.getName(), actionRequest);
 
 		return _depotEntryLocalService.addDepotEntry(
-			Collections.singletonMap(themeDisplay.getLocale(), spaceName),
-			Collections.singletonMap(
-				themeDisplay.getLocale(), StringPool.BLANK),
+			Collections.singletonMap(LocaleUtil.getDefault(), spaceName),
+			Collections.singletonMap(LocaleUtil.getDefault(), StringPool.BLANK),
 			DepotConstants.TYPE_SPACE, serviceContext);
 	}
 
