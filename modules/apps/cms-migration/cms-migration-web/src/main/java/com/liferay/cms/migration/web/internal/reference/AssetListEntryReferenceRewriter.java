@@ -44,7 +44,7 @@ public class AssetListEntryReferenceRewriter {
 	public void rewrite(CMSMigrationContext cmsMigrationContext) {
 		for (AssetListEntry assetListEntry :
 				_assetListEntryLocalService.getAssetListEntries(
-					cmsMigrationContext.getSourceGroupId())) {
+					cmsMigrationContext.getRewriteGroupId())) {
 
 			cmsMigrationContext.sendStatus(assetListEntry.getTitle());
 
@@ -111,6 +111,25 @@ public class AssetListEntryReferenceRewriter {
 					assetListEntrySegmentsEntryRel.getTypeSettings()
 				).build();
 
+			Set<String> groupIds = new LinkedHashSet<>();
+
+			for (String groupId :
+					StringUtil.split(
+						unicodeProperties.getProperty(
+							"groupIds",
+							String.valueOf(
+								cmsMigrationContext.getRewriteGroupId())))) {
+
+				groupIds.add(groupId);
+			}
+
+			if (!cmsMigrationContext.isRewriteSourceGroup() &&
+				!groupIds.contains(
+					String.valueOf(cmsMigrationContext.getSourceGroupId()))) {
+
+				continue;
+			}
+
 			Map<String, String[]> settings = new HashMap<>();
 
 			for (Map.Entry<String, String> entry :
@@ -134,18 +153,6 @@ public class AssetListEntryReferenceRewriter {
 			for (Map.Entry<String, String[]> entry : settings.entrySet()) {
 				unicodeProperties.setProperty(
 					entry.getKey(), StringUtil.merge(entry.getValue()));
-			}
-
-			Set<String> groupIds = new LinkedHashSet<>();
-
-			for (String groupId :
-					StringUtil.split(
-						unicodeProperties.getProperty(
-							"groupIds",
-							String.valueOf(
-								cmsMigrationContext.getSourceGroupId())))) {
-
-				groupIds.add(groupId);
 			}
 
 			groupIds.add(String.valueOf(cmsMigrationContext.getDepotGroupId()));

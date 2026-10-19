@@ -10,6 +10,8 @@ import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.model.DepotEntryGroupRel;
+import com.liferay.depot.service.DepotEntryGroupRelLocalService;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
@@ -23,6 +25,7 @@ import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.journal.constants.JournalContentPortletKeys;
 import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
+import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.layout.test.util.ContentLayoutTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
@@ -46,6 +49,7 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -71,6 +75,7 @@ import jakarta.portlet.PortletPreferences;
 
 import java.io.Serializable;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -142,6 +147,14 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			}
 		}
 
+		for (DepotEntryGroupRel depotEntryGroupRel :
+				_depotEntryGroupRelLocalService.getDepotEntryGroupRels(
+					_depotEntry)) {
+
+			_depotEntryGroupRelLocalService.deleteDepotEntryGroupRel(
+				depotEntryGroupRel);
+		}
+
 		_depotEntryLocalService.deleteDepotEntry(_depotEntry);
 	}
 
@@ -164,7 +177,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			_group.getGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
-		_assertSuccessful(_execute(false));
+		_assertSuccessful(_execute(_group.getGroupId(), false));
 
 		ObjectEntry objectEntry = _getObjectEntry(
 			"CMS_MIGRATION_BLOGS_ENTRY",
@@ -192,7 +205,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			objectEntry.getTitleValue(
 				LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault())));
 
-		_assertSuccessful(_execute(false));
+		_assertSuccessful(_execute(_group.getGroupId(), false));
 
 		Assert.assertEquals(
 			objectEntry.getObjectEntryId(),
@@ -202,6 +215,76 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				"CMS_MIGRATION_JOURNAL_ARTICLE_" +
 					_journalArticle.getResourcePrimKey()
 			).getObjectEntryId());
+	}
+
+	@Test
+	public void testExecuteWithGlobalSourceGroup() throws Exception {
+		Group companyGroup = _groupLocalService.getCompanyGroup(
+			_group.getCompanyId());
+
+		_journalArticle = JournalTestUtil.addArticle(
+			companyGroup.getGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		try {
+			JournalArticle journalArticle = JournalTestUtil.addArticle(
+				_group.getGroupId(),
+				JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+			Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
+
+			String globalPortletId = _addJournalContentPortlet(
+				layout, _journalArticle);
+			String portletId = _addJournalContentPortlet(
+				layout, journalArticle);
+
+			_assertSuccessful(_execute(companyGroup.getGroupId(), true));
+
+			ObjectEntry objectEntry = _getObjectEntry(
+				"CMS_MIGRATION_DDM_STRUCTURE_" +
+					_journalArticle.getDDMStructureId(),
+				"CMS_MIGRATION_JOURNAL_ARTICLE_" +
+					_journalArticle.getResourcePrimKey());
+
+			Assert.assertEquals(
+				_journalArticle.getTitle(LocaleUtil.getSiteDefault()),
+				objectEntry.getTitleValue(
+					LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault())));
+
+			layout = _layoutLocalService.getLayout(layout.getPlid());
+
+			LayoutTypePortlet layoutTypePortlet =
+				(LayoutTypePortlet)layout.getLayoutType();
+
+			List<String> portletIds = layoutTypePortlet.getPortletIds();
+
+			String newPortletId = PortletIdCodec.encode(
+				_CMS_CONTENT_DISPLAY_PORTLET_NAME,
+				PortletIdCodec.decodeInstanceId(globalPortletId));
+
+			Assert.assertTrue(portletIds.contains(newPortletId));
+
+			Assert.assertFalse(portletIds.contains(globalPortletId));
+			Assert.assertTrue(portletIds.contains(portletId));
+
+			PortletPreferences portletPreferences =
+				_portletPreferencesLocalService.getPreferences(
+					layout.getCompanyId(), PortletKeys.PREFS_OWNER_ID_DEFAULT,
+					PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+					newPortletId);
+
+			Assert.assertEquals(
+				String.valueOf(objectEntry.getObjectEntryId()),
+				portletPreferences.getValue("objectEntryId", StringPool.BLANK));
+
+			Assert.assertNotNull(
+				_depotEntryGroupRelLocalService.
+					fetchDepotEntryGroupRelByDepotEntryIdToGroupId(
+						_depotEntry.getDepotEntryId(), _group.getGroupId()));
+		}
+		finally {
+			_journalArticleLocalService.deleteArticle(_journalArticle);
+		}
 	}
 
 	@Test
@@ -221,7 +304,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			DDMStructureTestUtil.getSampleStructuredContent(),
 			ddmStructure.getStructureKey(), null);
 
-		_assertSuccessful(_execute(false));
+		_assertSuccessful(_execute(_group.getGroupId(), false));
 
 		ObjectEntry objectEntry = _getObjectEntry(
 			"CMS_MIGRATION_DDM_STRUCTURE_" + ddmStructure.getStructureId(),
@@ -233,8 +316,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 		Assert.assertEquals(
 			ObjectFieldConstants.DB_TYPE_DOUBLE, objectField.getDBType());
-		Assert.assertTrue(
-			Validator.isNull(objectField.getIndexedLanguageId()));
+		Assert.assertTrue(Validator.isNull(objectField.getIndexedLanguageId()));
 	}
 
 	@Test
@@ -271,16 +353,10 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 		Layout portletLayout = LayoutTestUtil.addTypePortletLayout(_group);
 
-		String portletId = LayoutTestUtil.addPortletToLayout(
-			portletLayout, JournalContentPortletKeys.JOURNAL_CONTENT,
-			HashMapBuilder.put(
-				"articleId", new String[] {_journalArticle.getArticleId()}
-			).put(
-				"groupId",
-				new String[] {String.valueOf(_journalArticle.getGroupId())}
-			).build());
+		String portletId = _addJournalContentPortlet(
+			portletLayout, _journalArticle);
 
-		_assertSuccessful(_execute(true));
+		_assertSuccessful(_execute(_group.getGroupId(), true));
 
 		ObjectEntry objectEntry = _getObjectEntry(
 			"CMS_MIGRATION_DDM_STRUCTURE_" +
@@ -349,6 +425,20 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			portletPreferences.getValue("objectEntryId", StringPool.BLANK));
 	}
 
+	private String _addJournalContentPortlet(
+			Layout layout, JournalArticle journalArticle)
+		throws Exception {
+
+		return LayoutTestUtil.addPortletToLayout(
+			layout, JournalContentPortletKeys.JOURNAL_CONTENT,
+			HashMapBuilder.put(
+				"articleId", new String[] {journalArticle.getArticleId()}
+			).put(
+				"groupId",
+				new String[] {String.valueOf(journalArticle.getGroupId())}
+			).build());
+	}
+
 	private void _assertSuccessful(BackgroundTaskResult backgroundTaskResult) {
 		Assert.assertEquals(
 			backgroundTaskResult.getStatusMessage(),
@@ -356,7 +446,8 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			backgroundTaskResult.getStatus());
 	}
 
-	private BackgroundTaskResult _execute(boolean rewritePages)
+	private BackgroundTaskResult _execute(
+			long sourceGroupId, boolean rewritePages)
 		throws Exception {
 
 		Map<String, Serializable> taskContextMap =
@@ -371,7 +462,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			).put(
 				"rewritePages", rewritePages
 			).put(
-				"sourceGroupId", _group.getGroupId()
+				"sourceGroupId", sourceGroupId
 			).build();
 
 		long userId = TestPropsValues.getUserId();
@@ -427,6 +518,9 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 	private DepotEntry _depotEntry;
 
 	@Inject
+	private DepotEntryGroupRelLocalService _depotEntryGroupRelLocalService;
+
+	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Inject
@@ -438,7 +532,13 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 	@DeleteAfterTestRun
 	private Group _group;
 
+	@Inject
+	private GroupLocalService _groupLocalService;
+
 	private JournalArticle _journalArticle;
+
+	@Inject
+	private JournalArticleLocalService _journalArticleLocalService;
 
 	@Inject
 	private LayoutLocalService _layoutLocalService;

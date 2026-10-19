@@ -51,6 +51,8 @@ public class CMSMigrationContext {
 		_sourceGroup = sourceGroup;
 		_statusConsumer = statusConsumer;
 		_userId = userId;
+
+		_rewriteGroup = sourceGroup;
 	}
 
 	public void addAssetListEntryReferenceScope(
@@ -169,6 +171,15 @@ public class CMSMigrationContext {
 		return _fileEntryResolverUnsafeFunction.apply(fileEntry);
 	}
 
+	/**
+	 * Returns the ID of the group whose references are being rewritten. It is
+	 * the source group, unless the source group is the Global site, whose
+	 * content other groups reference too.
+	 */
+	public long getRewriteGroupId() {
+		return _rewriteGroup.getGroupId();
+	}
+
 	public ServiceContext getServiceContext() {
 		return _serviceContext;
 	}
@@ -206,6 +217,14 @@ public class CMSMigrationContext {
 		return _rewritePages;
 	}
 
+	public boolean isRewriteSourceGroup() {
+		if (_rewriteGroup.getGroupId() == _sourceGroup.getGroupId()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public void sendStatus(String itemTitle) {
 		_statusConsumer.accept(itemTitle);
 	}
@@ -215,6 +234,10 @@ public class CMSMigrationContext {
 			fileEntryResolverUnsafeFunction) {
 
 		_fileEntryResolverUnsafeFunction = fileEntryResolverUnsafeFunction;
+	}
+
+	public void setRewriteGroup(Group rewriteGroup) {
+		_rewriteGroup = rewriteGroup;
 	}
 
 	private String _getKey(String prefix, long id) {
@@ -238,6 +261,7 @@ public class CMSMigrationContext {
 		new HashMap<>();
 	private final Map<String, ObjectEntry> _objectEntries = new HashMap<>();
 	private final Map<String, Long> _objectEntryFolderIds = new HashMap<>();
+	private Group _rewriteGroup;
 	private final boolean _rewritePages;
 	private final ServiceContext _serviceContext;
 	private final Group _sourceGroup;

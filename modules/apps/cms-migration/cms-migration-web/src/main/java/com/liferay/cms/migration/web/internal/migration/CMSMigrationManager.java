@@ -19,6 +19,7 @@ import com.liferay.cms.migration.web.internal.reference.PortletReferenceRewriter
 import com.liferay.cms.migration.web.internal.reference.SiteNavigationMenuItemReferenceRewriter;
 import com.liferay.cms.migration.web.internal.template.TemplateMigrator;
 import com.liferay.depot.service.DepotEntryGroupRelLocalService;
+import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
@@ -26,9 +27,13 @@ import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.module.service.Snapshot;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -59,8 +64,19 @@ public class CMSMigrationManager {
 			cmsMigrationContext.getSourceGroupId());
 
 		cmsMigrationContext.setFileEntryResolver(
-			fileEntry -> _fileEntryMigrator.migrate(
-				cmsMigrationContext, fileEntry));
+			fileEntry -> {
+				if (!cmsMigrationContext.isRewriteSourceGroup() &&
+					(fileEntry.getGroupId() !=
+						cmsMigrationContext.getSourceGroupId())) {
+
+					return cmsMigrationContext.getObjectEntry(
+						DLFileEntry.class.getName(),
+						fileEntry.getFileEntryId());
+				}
+
+				return _fileEntryMigrator.migrate(
+					cmsMigrationContext, fileEntry);
+			});
 
 		_sendPhase(CMSMigrationConstants.PHASE_FOLDERS, 0);
 
@@ -120,45 +136,82 @@ public class CMSMigrationManager {
 			return;
 		}
 
-		_sendPhase(CMSMigrationConstants.PHASE_DISPLAY_PAGE_TEMPLATES, 0);
+		_rewriteReferences(cmsMigrationContext);
 
-		_assetListEntryReferenceRewriter.rewrite(cmsMigrationContext);
+		Group sourceGroup = cmsMigrationContext.getSourceGroup();
 
-		_displayPageTemplateMigrator.migrate(cmsMigrationContext);
-
-		List<Layout> layouts = _getLayouts(cmsMigrationContext);
-
-		_sendPhase(CMSMigrationConstants.PHASE_PAGES, layouts.size());
-
-		for (Layout layout : layouts) {
-			cmsMigrationContext.sendStatus(layout.getFriendlyURL());
-
-			try {
-				_layoutReferenceRewriter.rewrite(
-					cmsMigrationContext, layout, null);
-				_portletReferenceRewriter.rewrite(cmsMigrationContext, layout);
-			}
-			catch (Exception exception) {
-				cmsMigrationContext.getCMSMigrationReport(
-				).addError(
-					StringBundler.concat(
-						"Unable to rewrite the page ", layout.getFriendlyURL(),
-						": ", exception.getMessage())
-				);
-			}
+		if (!sourceGroup.isCompany()) {
+			return;
 		}
 
-		_siteNavigationMenuItemReferenceRewriter.rewrite(cmsMigrationContext);
+		try {
+			for (Group group : _getReferencingGroups(cmsMigrationContext)) {
+				cmsMigrationContext.setRewriteGroup(group);
+
+				_rewriteReferences(cmsMigrationContext);
+
+				Group liveGroup = group;
+
+				if (group.isStagingGroup()) {
+					liveGroup = group.getLiveGroup();
+				}
+
+				if (liveGroup.isSite()) {
+					_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
+						cmsMigrationContext.getDepotEntry(
+						).getDepotEntryId(),
+						liveGroup.getGroupId());
+				}
+			}
+		}
+		finally {
+			cmsMigrationContext.setRewriteGroup(sourceGroup);
+		}
 	}
 
-	private List<Layout> _getLayouts(CMSMigrationContext cmsMigrationContext) {
+	private List<Layout> _getLayouts(long groupId) {
+		DynamicQuery dynamicQuery = _layoutLocalService.dynamicQuery();
+
+		dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", groupId));
+
+		return _layoutLocalService.dynamicQuery(dynamicQuery);
+	}
+
+	/**
+	 * Returns every group, other than the source group and the target space,
+	 * that has pages. Their pages may reference the content of the Global
+	 * site.
+	 */
+	private List<Group> _getReferencingGroups(
+		CMSMigrationContext cmsMigrationContext) {
+
 		DynamicQuery dynamicQuery = _layoutLocalService.dynamicQuery();
 
 		dynamicQuery.add(
 			RestrictionsFactoryUtil.eq(
+				"companyId", cmsMigrationContext.getCompanyId()));
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.ne(
 				"groupId", cmsMigrationContext.getSourceGroupId()));
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.ne(
+				"groupId", cmsMigrationContext.getDepotGroupId()));
+		dynamicQuery.addOrder(OrderFactoryUtil.asc("groupId"));
+		dynamicQuery.setProjection(
+			ProjectionFactoryUtil.distinct(
+				ProjectionFactoryUtil.property("groupId")));
 
-		return _layoutLocalService.dynamicQuery(dynamicQuery);
+		List<Group> groups = new ArrayList<>();
+
+		for (Object groupId : _layoutLocalService.dynamicQuery(dynamicQuery)) {
+			Group group = _groupLocalService.fetchGroup((Long)groupId);
+
+			if ((group != null) && !group.isDepot()) {
+				groups.add(group);
+			}
+		}
+
+		return groups;
 	}
 
 	private void _rewriteContentLinks(CMSMigrationContext cmsMigrationContext) {
@@ -261,6 +314,39 @@ public class CMSMigrationManager {
 		}
 	}
 
+	private void _rewriteReferences(CMSMigrationContext cmsMigrationContext) {
+		_sendPhase(CMSMigrationConstants.PHASE_DISPLAY_PAGE_TEMPLATES, 0);
+
+		_assetListEntryReferenceRewriter.rewrite(cmsMigrationContext);
+
+		_displayPageTemplateMigrator.migrate(cmsMigrationContext);
+
+		List<Layout> layouts = _getLayouts(
+			cmsMigrationContext.getRewriteGroupId());
+
+		_sendPhase(CMSMigrationConstants.PHASE_PAGES, layouts.size());
+
+		for (Layout layout : layouts) {
+			cmsMigrationContext.sendStatus(layout.getFriendlyURL());
+
+			try {
+				_layoutReferenceRewriter.rewrite(
+					cmsMigrationContext, layout, null);
+				_portletReferenceRewriter.rewrite(cmsMigrationContext, layout);
+			}
+			catch (Exception exception) {
+				cmsMigrationContext.getCMSMigrationReport(
+				).addError(
+					StringBundler.concat(
+						"Unable to rewrite the page ", layout.getFriendlyURL(),
+						": ", exception.getMessage())
+				);
+			}
+		}
+
+		_siteNavigationMenuItemReferenceRewriter.rewrite(cmsMigrationContext);
+	}
+
 	private void _sendPhase(String phase, long total) {
 		_cmsMigrationBackgroundTaskStatusMessageSender.sendPhaseStatusMessage(
 			phase, total);
@@ -269,6 +355,9 @@ public class CMSMigrationManager {
 	private static final Snapshot<DepotEntryGroupRelLocalService>
 		_depotEntryGroupRelLocalServiceSnapshot = new Snapshot<>(
 			CMSMigrationManager.class, DepotEntryGroupRelLocalService.class);
+	private static final Snapshot<GroupLocalService>
+		_groupLocalServiceSnapshot = new Snapshot<>(
+			CMSMigrationManager.class, GroupLocalService.class);
 	private static final Snapshot<LayoutLocalService>
 		_layoutLocalServiceSnapshot = new Snapshot<>(
 			CMSMigrationManager.class, LayoutLocalService.class);
@@ -295,6 +384,8 @@ public class CMSMigrationManager {
 	private final FileEntryMigrator _fileEntryMigrator =
 		new FileEntryMigrator();
 	private final FolderMigrator _folderMigrator = new FolderMigrator();
+	private final GroupLocalService _groupLocalService =
+		_groupLocalServiceSnapshot.get();
 	private final HTMLReferenceRewriter _htmlReferenceRewriter =
 		new HTMLReferenceRewriter();
 	private final JournalArticleMigrator _journalArticleMigrator =

@@ -99,9 +99,10 @@ public class PortletReferenceRewriter {
 					_rewriteAssetPublisher(
 						cmsMigrationContext, layout, portletId);
 				}
-				else if (portletName.equals(BlogsPortletKeys.BLOGS) ||
-						 portletName.equals(
-							 BlogsPortletKeys.BLOGS_AGGREGATOR)) {
+				else if (cmsMigrationContext.isRewriteSourceGroup() &&
+						 (portletName.equals(BlogsPortletKeys.BLOGS) ||
+						  portletName.equals(
+							  BlogsPortletKeys.BLOGS_AGGREGATOR))) {
 
 					_replaceBlogs(cmsMigrationContext, layout, portletId);
 				}
@@ -284,8 +285,7 @@ public class PortletReferenceRewriter {
 			"scopeIds",
 			new String[] {
 				_assetPublisherHelper.getScopeId(
-					cmsMigrationContext.getDepotGroup(),
-					cmsMigrationContext.getSourceGroupId())
+					cmsMigrationContext.getDepotGroup(), layout.getGroupId())
 			});
 		preferences.put("selectionStyle", new String[] {"dynamic"});
 
@@ -550,6 +550,19 @@ public class PortletReferenceRewriter {
 				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
 				portletId);
 
+		Set<String> scopeIds = new LinkedHashSet<>();
+
+		for (String scopeId :
+				portletPreferences.getValues(
+					"scopeIds",
+					new String[] {
+						AssetPublisherHelper.SCOPE_ID_GROUP_PREFIX +
+							layout.getGroupId()
+					})) {
+
+			scopeIds.add(scopeId);
+		}
+
 		String label = "The Asset Publisher on " + layout.getFriendlyURL();
 		String selectionStyle = portletPreferences.getValue(
 			"selectionStyle", "dynamic");
@@ -578,7 +591,13 @@ public class PortletReferenceRewriter {
 					"assetEntryXml", assetEntryXmls.toArray(new String[0]));
 			}
 		}
-		else if (selectionStyle.equals("dynamic")) {
+		else if (selectionStyle.equals("dynamic") &&
+				 (cmsMigrationContext.isRewriteSourceGroup() ||
+				  scopeIds.contains(
+					  _assetPublisherHelper.getScopeId(
+						  cmsMigrationContext.getSourceGroup(),
+						  layout.getGroupId())))) {
+
 			Map<String, String[]> settings = new HashMap<>(
 				portletPreferences.getMap());
 
@@ -601,23 +620,9 @@ public class PortletReferenceRewriter {
 			return;
 		}
 
-		Set<String> scopeIds = new LinkedHashSet<>();
-
-		for (String scopeId :
-				portletPreferences.getValues(
-					"scopeIds",
-					new String[] {
-						AssetPublisherHelper.SCOPE_ID_GROUP_PREFIX +
-							layout.getGroupId()
-					})) {
-
-			scopeIds.add(scopeId);
-		}
-
 		scopeIds.add(
 			_assetPublisherHelper.getScopeId(
-				cmsMigrationContext.getDepotGroup(),
-				cmsMigrationContext.getSourceGroupId()));
+				cmsMigrationContext.getDepotGroup(), layout.getGroupId()));
 
 		portletPreferences.setValues(
 			"scopeIds", scopeIds.toArray(new String[0]));

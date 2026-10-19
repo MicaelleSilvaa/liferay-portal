@@ -101,33 +101,36 @@ public class HTMLReferenceRewriter {
 		html = _replace(
 			_journalArticlePattern, html,
 			matcher -> {
-				JournalArticle journalArticle =
-					_journalArticleLocalService.fetchArticleByUrlTitle(
-						cmsMigrationContext.getSourceGroupId(),
-						matcher.group(1));
+				for (long groupId : _getLinkGroupIds(cmsMigrationContext)) {
+					JournalArticle journalArticle =
+						_journalArticleLocalService.fetchArticleByUrlTitle(
+							groupId, matcher.group(1));
 
-				if (journalArticle == null) {
-					return null;
+					if (journalArticle != null) {
+						return _getObjectEntryPath(
+							cmsMigrationContext, JournalArticle.class.getName(),
+							journalArticle.getResourcePrimKey());
+					}
 				}
 
-				return _getObjectEntryPath(
-					cmsMigrationContext, JournalArticle.class.getName(),
-					journalArticle.getResourcePrimKey());
+				return null;
 			});
 
 		return _replace(
 			_blogsEntryPattern, html,
 			matcher -> {
-				BlogsEntry blogsEntry = _blogsEntryLocalService.fetchEntry(
-					cmsMigrationContext.getSourceGroupId(), matcher.group(1));
+				for (long groupId : _getLinkGroupIds(cmsMigrationContext)) {
+					BlogsEntry blogsEntry = _blogsEntryLocalService.fetchEntry(
+						groupId, matcher.group(1));
 
-				if (blogsEntry == null) {
-					return null;
+					if (blogsEntry != null) {
+						return _getObjectEntryPath(
+							cmsMigrationContext, BlogsEntry.class.getName(),
+							blogsEntry.getEntryId());
+					}
 				}
 
-				return _getObjectEntryPath(
-					cmsMigrationContext, BlogsEntry.class.getName(),
-					blogsEntry.getEntryId());
+				return null;
 			});
 	}
 
@@ -285,6 +288,22 @@ public class HTMLReferenceRewriter {
 		}
 
 		return getFileEntryURL(attachmentFileEntry);
+	}
+
+	/**
+	 * Returns the groups that a content link resolves against, in order. A
+	 * link on another group's page resolves against that group before it
+	 * falls back to the source group, as friendly URLs do.
+	 */
+	private long[] _getLinkGroupIds(CMSMigrationContext cmsMigrationContext) {
+		if (cmsMigrationContext.isRewriteSourceGroup()) {
+			return new long[] {cmsMigrationContext.getSourceGroupId()};
+		}
+
+		return new long[] {
+			cmsMigrationContext.getRewriteGroupId(),
+			cmsMigrationContext.getSourceGroupId()
+		};
 	}
 
 	private String _getObjectEntryPath(

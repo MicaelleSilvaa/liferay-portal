@@ -61,7 +61,7 @@ public class InfoItemReferenceMapper {
 			return 0;
 		}
 
-		long groupId = cmsMigrationContext.getSourceGroupId();
+		long groupId = cmsMigrationContext.getRewriteGroupId();
 
 		if (Validator.isNotNull(scopeExternalReferenceCode)) {
 			Group group = _groupLocalService.fetchGroupByExternalReferenceCode(

@@ -29,7 +29,7 @@ public class SiteNavigationMenuItemReferenceRewriter {
 	public void rewrite(CMSMigrationContext cmsMigrationContext) {
 		for (SiteNavigationMenu siteNavigationMenu :
 				_siteNavigationMenuLocalService.getSiteNavigationMenus(
-					cmsMigrationContext.getSourceGroupId())) {
+					cmsMigrationContext.getRewriteGroupId())) {
 
 			for (SiteNavigationMenuItem siteNavigationMenuItem :
 					_siteNavigationMenuItemLocalService.

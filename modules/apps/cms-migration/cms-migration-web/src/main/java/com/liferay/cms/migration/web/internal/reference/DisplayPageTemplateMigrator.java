@@ -17,6 +17,7 @@ import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.journal.model.JournalArticle;
 import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
@@ -50,7 +51,7 @@ public class DisplayPageTemplateMigrator {
 		for (LayoutPageTemplateEntry layoutPageTemplateEntry :
 				_layoutPageTemplateEntryLocalService.
 					getLayoutPageTemplateEntries(
-						cmsMigrationContext.getSourceGroupId())) {
+						cmsMigrationContext.getRewriteGroupId())) {
 
 			if (layoutPageTemplateEntry.getType() !=
 					LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE) {
@@ -84,7 +85,9 @@ public class DisplayPageTemplateMigrator {
 			}
 		}
 
-		_migrateAssetDisplayPageEntries(cmsMigrationContext);
+		if (cmsMigrationContext.isRewriteSourceGroup()) {
+			_migrateAssetDisplayPageEntries(cmsMigrationContext);
+		}
 	}
 
 	private ReferenceScope _getReferenceScope(
@@ -92,6 +95,30 @@ public class DisplayPageTemplateMigrator {
 			LayoutPageTemplateEntry layoutPageTemplateEntry,
 			String sourceClassName)
 		throws Exception {
+
+		if (!cmsMigrationContext.isRewriteSourceGroup()) {
+
+			// Another group's display page templates only display the
+			// migrated content when they display its type
+
+			ObjectDefinition objectDefinition =
+				cmsMigrationContext.getObjectDefinition(
+					sourceClassName, layoutPageTemplateEntry.getClassTypeId());
+
+			if (objectDefinition == null) {
+				return null;
+			}
+
+			DDMStructure ddmStructure = null;
+
+			if (sourceClassName.equals(JournalArticle.class.getName())) {
+				ddmStructure = _ddmStructureLocalService.fetchDDMStructure(
+					layoutPageTemplateEntry.getClassTypeId());
+			}
+
+			return new ReferenceScope(
+				ddmStructure, objectDefinition, sourceClassName);
+		}
 
 		if (sourceClassName.equals(BlogsEntry.class.getName())) {
 			if (!cmsMigrationContext.isMigrateBlogsEntries()) {
@@ -164,7 +191,7 @@ public class DisplayPageTemplateMigrator {
 			_layoutPageTemplateEntryLocalService.
 				fetchLayoutPageTemplateEntryByExternalReferenceCode(
 					externalReferenceCode,
-					cmsMigrationContext.getSourceGroupId());
+					cmsMigrationContext.getRewriteGroupId());
 
 		if (newLayoutPageTemplateEntry == null) {
 			Layout layout = _layoutLocalService.getLayout(
@@ -173,7 +200,7 @@ public class DisplayPageTemplateMigrator {
 			newLayoutPageTemplateEntry =
 				_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
 					externalReferenceCode, cmsMigrationContext.getUserId(),
-					cmsMigrationContext.getSourceGroupId(),
+					cmsMigrationContext.getRewriteGroupId(),
 					layoutPageTemplateEntry.getLayoutPageTemplateCollectionId(),
 					null,
 					_portal.getClassNameId(objectDefinition.getClassName()),

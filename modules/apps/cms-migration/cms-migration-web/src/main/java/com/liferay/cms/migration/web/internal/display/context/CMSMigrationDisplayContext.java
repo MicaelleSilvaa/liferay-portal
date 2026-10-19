@@ -101,9 +101,7 @@ public class CMSMigrationDisplayContext {
 					_themeDisplay.getCompanyId(), true, true, QueryUtil.ALL_POS,
 					QueryUtil.ALL_POS, null)) {
 
-			if (group.isCompany() || group.isDepot() ||
-				group.isStagingGroup() || !group.isSite()) {
-
+			if (group.isDepot() || group.isStagingGroup() || !group.isSite()) {
 				continue;
 			}
 
