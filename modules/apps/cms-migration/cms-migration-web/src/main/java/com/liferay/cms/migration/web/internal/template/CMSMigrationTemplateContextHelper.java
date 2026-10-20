@@ -57,6 +57,9 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.reading.time.message.ReadingTimeMessageProvider;
+import com.liferay.reading.time.model.ReadingTimeEntry;
+import com.liferay.reading.time.service.ReadingTimeEntryLocalService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -101,6 +104,8 @@ public class CMSMigrationTemplateContextHelper {
 		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ObjectEntryLocalService objectEntryLocalService,
 		ObjectEntryService objectEntryService,
+		ReadingTimeEntryLocalService readingTimeEntryLocalService,
+		ReadingTimeMessageProvider readingTimeMessageProvider,
 		UserLocalService userLocalService) {
 
 		_assetDisplayPageFriendlyURLProvider =
@@ -118,6 +123,8 @@ public class CMSMigrationTemplateContextHelper {
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectEntryService = objectEntryService;
+		_readingTimeEntryLocalService = readingTimeEntryLocalService;
+		_readingTimeMessageProvider = readingTimeMessageProvider;
 		_userLocalService = userLocalService;
 	}
 
@@ -302,6 +309,23 @@ public class CMSMigrationTemplateContextHelper {
 		context.put("viewMode", "view");
 
 		return context;
+	}
+
+	public String getReadingTime(AssetEntry assetEntry) throws Exception {
+		ReadingTimeEntry readingTimeEntry =
+			_readingTimeEntryLocalService.fetchReadingTimeEntry(
+				_objectEntryService.getObjectEntry(assetEntry.getClassPK()));
+
+		if (readingTimeEntry == null) {
+			return StringPool.BLANK;
+		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)_httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		return _readingTimeMessageProvider.provide(
+			readingTimeEntry, themeDisplay.getLocale());
 	}
 
 	private void _addOptions(
@@ -1215,6 +1239,8 @@ public class CMSMigrationTemplateContextHelper {
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final ObjectEntryService _objectEntryService;
+	private final ReadingTimeEntryLocalService _readingTimeEntryLocalService;
+	private final ReadingTimeMessageProvider _readingTimeMessageProvider;
 	private final UserLocalService _userLocalService;
 
 }
