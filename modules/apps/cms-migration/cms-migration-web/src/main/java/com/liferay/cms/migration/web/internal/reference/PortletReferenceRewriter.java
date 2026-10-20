@@ -37,6 +37,9 @@ import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
+import com.liferay.portal.kernel.settings.FallbackKeysSettingsUtil;
+import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
+import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -238,6 +241,16 @@ public class PortletReferenceRewriter {
 			groupId, articleId, WorkflowConstants.STATUS_ANY);
 	}
 
+	private boolean _isReadingTimeEnabled(Layout layout, String portletId)
+		throws Exception {
+
+		Settings settings = FallbackKeysSettingsUtil.getSettings(
+			new PortletInstanceSettingsLocator(layout, portletId));
+
+		return GetterUtil.getBoolean(
+			settings.getValue("enableReadingTime", "false"));
+	}
+
 	private void _replaceBlogs(
 			CMSMigrationContext cmsMigrationContext, Layout layout,
 			String portletId)
@@ -278,6 +291,11 @@ public class PortletReferenceRewriter {
 		preferences.put(
 			"displayStyleGroupExternalReferenceCode",
 			new String[] {sourceGroup.getExternalReferenceCode()});
+		preferences.put(
+			"enableReadingTime",
+			new String[] {
+				String.valueOf(_isReadingTimeEnabled(layout, portletId))
+			});
 		preferences.put("orderByColumn1", new String[] {"displayDate"});
 		preferences.put("orderByType1", new String[] {"DESC"});
 		preferences.put("paginationType", new String[] {"regular"});
