@@ -6,6 +6,10 @@
 package com.liferay.cms.migration.web.internal.background.task.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.asset.publisher.constants.AssetPublisherPortletKeys;
+import com.liferay.blogs.constants.BlogsPortletKeys;
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.depot.constants.DepotConstants;
@@ -36,7 +40,10 @@ import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
+import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
@@ -48,7 +55,9 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
+import com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateManager;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
@@ -59,24 +68,33 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.reading.time.model.ReadingTimeEntry;
+import com.liferay.reading.time.service.ReadingTimeEntryLocalService;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import jakarta.portlet.PortletPreferences;
 
 import java.io.Serializable;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -85,6 +103,9 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * @author Lino Alves
@@ -215,6 +236,50 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				"CMS_MIGRATION_JOURNAL_ARTICLE_" +
 					_journalArticle.getResourcePrimKey()
 			).getObjectEntryId());
+	}
+
+	@Test
+	public void testExecuteWithBlogsEntryReadingTime() throws Exception {
+		BlogsEntry blogsEntry = _blogsEntryLocalService.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			_getContent(530),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_assertSuccessful(_execute(_group.getGroupId(), false));
+
+		ReadingTimeEntry objectEntryReadingTimeEntry =
+			_readingTimeEntryLocalService.fetchReadingTimeEntry(
+				_getObjectEntry(
+					"CMS_MIGRATION_BLOGS_ENTRY",
+					"CMS_MIGRATION_BLOGS_ENTRY_" + blogsEntry.getEntryId()));
+
+		Assert.assertEquals(
+			120000, objectEntryReadingTimeEntry.getReadingTime());
+	}
+
+	@Test
+	public void testExecuteWithBlogsEntryWithoutReadingTimeEntry()
+		throws Exception {
+
+		BlogsEntry blogsEntry = _blogsEntryLocalService.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			_getContent(530),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		_readingTimeEntryLocalService.deleteReadingTimeEntry(blogsEntry);
+
+		_assertSuccessful(_execute(_group.getGroupId(), false));
+
+		Assert.assertNull(
+			_readingTimeEntryLocalService.fetchReadingTimeEntry(blogsEntry));
+
+		ReadingTimeEntry readingTimeEntry =
+			_readingTimeEntryLocalService.fetchReadingTimeEntry(
+				_getObjectEntry(
+					"CMS_MIGRATION_BLOGS_ENTRY",
+					"CMS_MIGRATION_BLOGS_ENTRY_" + blogsEntry.getEntryId()));
+
+		Assert.assertEquals(120000, readingTimeEntry.getReadingTime());
 	}
 
 	@Test
@@ -425,6 +490,109 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			portletPreferences.getValue("objectEntryId", StringPool.BLANK));
 	}
 
+	@Test
+	public void testExecuteWithRewritePagesAndBlogsWidgets() throws Exception {
+		BlogsEntry blogsEntry = _blogsEntryLocalService.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			_getContent(530),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		Layout readingTimeDisabledLayout = LayoutTestUtil.addTypePortletLayout(
+			_group);
+
+		LayoutTestUtil.addPortletToLayout(
+			readingTimeDisabledLayout, BlogsPortletKeys.BLOGS,
+			HashMapBuilder.put(
+				"enableReadingTime", new String[] {"false"}
+			).build());
+
+		Layout readingTimeUnsetLayout = LayoutTestUtil.addTypePortletLayout(
+			_group);
+
+		LayoutTestUtil.addPortletToLayout(
+			readingTimeUnsetLayout, BlogsPortletKeys.BLOGS,
+			HashMapBuilder.put(
+				"pageDelta",
+				new String[] {String.valueOf(RandomTestUtil.randomInt())}
+			).build());
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					_PID_BLOGS_PORTLET_INSTANCE_CONFIGURATION,
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableReadingTime", true
+					).build())) {
+
+			_assertSuccessful(_execute(_group.getGroupId(), true));
+		}
+
+		Assert.assertEquals(
+			"false",
+			_getAssetPublisherPreferenceValue(
+				readingTimeDisabledLayout, "enableReadingTime"));
+		Assert.assertEquals(
+			"true",
+			_getAssetPublisherPreferenceValue(
+				readingTimeUnsetLayout, "enableReadingTime"));
+
+		String content = _renderAssetPublisherWidgetTemplate(
+			blogsEntry, readingTimeDisabledLayout);
+
+		Assert.assertFalse(content, content.contains("2 Minute Read"));
+
+		content = _renderAssetPublisherWidgetTemplate(
+			blogsEntry, readingTimeUnsetLayout);
+
+		Assert.assertTrue(content, content.contains("2 Minute Read"));
+	}
+
+	@Test
+	public void testExecuteWithRewritePagesAndBlogsWidgetsWhenSiteReadingTimeIsEnabled()
+		throws Exception {
+
+		_blogsEntryLocalService.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			_getContent(530),
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
+
+		LayoutTestUtil.addPortletToLayout(
+			layout, BlogsPortletKeys.BLOGS,
+			HashMapBuilder.put(
+				"pageDelta",
+				new String[] {String.valueOf(RandomTestUtil.randomInt())}
+			).build());
+
+		String pid = ConfigurationTestUtil.createFactoryConfiguration(
+			_PID_BLOGS_PORTLET_INSTANCE_CONFIGURATION + ".scoped",
+			HashMapDictionaryBuilder.<String, Object>put(
+				"companyId", _group.getCompanyId()
+			).put(
+				"enableReadingTime", true
+			).put(
+				"groupId", _group.getGroupId()
+			).build());
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					_PID_BLOGS_PORTLET_INSTANCE_CONFIGURATION,
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableReadingTime", false
+					).build())) {
+
+			_assertSuccessful(_execute(_group.getGroupId(), true));
+		}
+		finally {
+			ConfigurationTestUtil.deleteFactoryConfiguration(
+				pid, _PID_BLOGS_PORTLET_INSTANCE_CONFIGURATION + ".scoped");
+		}
+
+		Assert.assertEquals(
+			"true",
+			_getAssetPublisherPreferenceValue(layout, "enableReadingTime"));
+	}
+
 	private String _addJournalContentPortlet(
 			Layout layout, JournalArticle journalArticle)
 		throws Exception {
@@ -487,6 +655,57 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 		return _backgroundTaskExecutor.execute(backgroundTask);
 	}
 
+	private PortletPreferences _getAssetPublisherPortletPreferences(
+			Layout layout)
+		throws Exception {
+
+		layout = _layoutLocalService.getLayout(layout.getPlid());
+
+		LayoutTypePortlet layoutTypePortlet =
+			(LayoutTypePortlet)layout.getLayoutType();
+
+		for (String portletId : layoutTypePortlet.getPortletIds()) {
+			if (!Objects.equals(
+					PortletIdCodec.decodePortletName(portletId),
+					AssetPublisherPortletKeys.ASSET_PUBLISHER)) {
+
+				continue;
+			}
+
+			return _portletPreferencesLocalService.getPreferences(
+				layout.getCompanyId(), PortletKeys.PREFS_OWNER_ID_DEFAULT,
+				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+				portletId);
+		}
+
+		throw new AssertionError(
+			"Layout " + layout.getPlid() + " has no Asset Publisher");
+	}
+
+	private String _getAssetPublisherPreferenceValue(Layout layout, String name)
+		throws Exception {
+
+		PortletPreferences portletPreferences =
+			_getAssetPublisherPortletPreferences(layout);
+
+		return portletPreferences.getValue(name, null);
+	}
+
+	private String _getContent(int wordCount) {
+		StringBundler sb = new StringBundler((wordCount * 2) + 2);
+
+		sb.append("<p>");
+
+		for (int i = 0; i < wordCount; i++) {
+			sb.append(RandomTestUtil.randomString());
+			sb.append(StringPool.SPACE);
+		}
+
+		sb.append("</p>");
+
+		return sb.toString();
+	}
+
 	private ObjectEntry _getObjectEntry(
 			String objectDefinitionExternalReferenceCode,
 			String objectEntryExternalReferenceCode)
@@ -503,9 +722,64 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			objectDefinition.getObjectDefinitionId());
 	}
 
+	private String _renderAssetPublisherWidgetTemplate(
+			BlogsEntry blogsEntry, Layout layout)
+		throws Exception {
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		ThemeDisplay themeDisplay = ContentLayoutTestUtil.getThemeDisplay(
+			_companyLocalService.getCompany(_group.getCompanyId()), _group,
+			layout);
+
+		themeDisplay.setRequest(mockHttpServletRequest);
+
+		mockHttpServletRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
+
+		ObjectEntry objectEntry = _getObjectEntry(
+			"CMS_MIGRATION_BLOGS_ENTRY",
+			"CMS_MIGRATION_BLOGS_ENTRY_" + blogsEntry.getEntryId());
+
+		Map<String, Object> contextObjects = new HashMap<>();
+
+		PortletPreferences portletPreferences =
+			_getAssetPublisherPortletPreferences(layout);
+
+		Map<String, String[]> map = portletPreferences.getMap();
+
+		for (Map.Entry<String, String[]> entry : map.entrySet()) {
+			String[] values = entry.getValue();
+
+			if (ArrayUtil.isEmpty(values)) {
+				continue;
+			}
+
+			contextObjects.put(entry.getKey(), values[0]);
+		}
+
+		return _portletDisplayTemplateManager.renderDDMTemplate(
+			_portal.getClassNameId(AssetEntry.class), contextObjects,
+			"CMS-MIGRATION-BLOGS",
+			Collections.singletonList(
+				_assetEntryLocalService.getEntry(
+					objectEntry.getModelClassName(),
+					objectEntry.getObjectEntryId())),
+			_group.getGroupId(), mockHttpServletRequest,
+			new MockHttpServletResponse(), false);
+	}
+
 	private static final String _CMS_CONTENT_DISPLAY_PORTLET_NAME =
 		"com_liferay_cms_migration_web_internal_portlet_" +
 			"CMSContentDisplayPortlet";
+
+	private static final String _PID_BLOGS_PORTLET_INSTANCE_CONFIGURATION =
+		"com.liferay.blogs.web.internal.configuration." +
+			"BlogsPortletInstanceConfiguration";
+
+	@Inject
+	private AssetEntryLocalService _assetEntryLocalService;
 
 	@Inject(
 		filter = "background.task.executor.class.name=com.liferay.cms.migration.web.internal.background.task.CMSMigrationBackgroundTaskExecutor"
@@ -514,6 +788,9 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 	@Inject
 	private BlogsEntryLocalService _blogsEntryLocalService;
+
+	@Inject
+	private CompanyLocalService _companyLocalService;
 
 	private DepotEntry _depotEntry;
 
@@ -556,7 +833,13 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 	private Portal _portal;
 
 	@Inject
+	private PortletDisplayTemplateManager _portletDisplayTemplateManager;
+
+	@Inject
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
+
+	@Inject
+	private ReadingTimeEntryLocalService _readingTimeEntryLocalService;
 
 	@Inject
 	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
