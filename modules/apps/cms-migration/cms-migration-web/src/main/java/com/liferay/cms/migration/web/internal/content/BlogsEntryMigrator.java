@@ -22,10 +22,16 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.reading.time.calculator.ReadingTimeCalculator;
+import com.liferay.reading.time.model.ReadingTimeEntry;
+import com.liferay.reading.time.service.ReadingTimeEntryLocalService;
 
 import java.io.Serializable;
+
+import java.time.Duration;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +39,8 @@ import java.util.Map;
 
 /**
  * Migrates the blog entries of a site to the CMS migration blog object
- * definition, keeping the cover image, the small image, and the friendly URL.
+ * definition, keeping the cover image, the small image, the friendly URL, and
+ * the reading time.
  *
  * @author Lino Alves
  */
@@ -140,6 +147,8 @@ public class BlogsEntryMigrator {
 			blogsEntry.getCreateDate(), blogsEntry.getModifiedDate(),
 			blogsEntry.isApproved());
 
+		_updateReadingTimeEntry(blogsEntry, objectEntry);
+
 		cmsMigrationContext.getCMSMigrationReport(
 		).increment(
 			CMSMigrationConstants.PHASE_BLOGS_ENTRIES
@@ -181,11 +190,44 @@ public class BlogsEntryMigrator {
 			).build());
 	}
 
+	private void _updateReadingTimeEntry(
+		BlogsEntry blogsEntry, ObjectEntry objectEntry) {
+
+		Duration readingTimeDuration;
+
+		ReadingTimeEntry readingTimeEntry =
+			_readingTimeEntryLocalService.fetchReadingTimeEntry(blogsEntry);
+
+		if (readingTimeEntry != null) {
+			readingTimeDuration = Duration.ofMillis(
+				readingTimeEntry.getReadingTime());
+		}
+		else {
+			readingTimeDuration = _readingTimeCalculator.calculate(blogsEntry);
+		}
+
+		if (readingTimeDuration == null) {
+			return;
+		}
+
+		_readingTimeEntryLocalService.updateReadingTimeEntry(
+			objectEntry.getGroupId(), _portal.getClassNameId(ObjectEntry.class),
+			objectEntry.getObjectEntryId(), readingTimeDuration);
+	}
+
 	private static final int _TITLE_MAX_LENGTH = 280;
 
 	private static final Snapshot<BlogsEntryLocalService>
 		_blogsEntryLocalServiceSnapshot = new Snapshot<>(
 			BlogsEntryMigrator.class, BlogsEntryLocalService.class);
+	private static final Snapshot<Portal> _portalSnapshot = new Snapshot<>(
+		BlogsEntryMigrator.class, Portal.class);
+	private static final Snapshot<ReadingTimeCalculator>
+		_readingTimeCalculatorSnapshot = new Snapshot<>(
+			BlogsEntryMigrator.class, ReadingTimeCalculator.class);
+	private static final Snapshot<ReadingTimeEntryLocalService>
+		_readingTimeEntryLocalServiceSnapshot = new Snapshot<>(
+			BlogsEntryMigrator.class, ReadingTimeEntryLocalService.class);
 
 	private final AttachmentCopier _attachmentCopier = new AttachmentCopier();
 	private final BlogsEntryLocalService _blogsEntryLocalService =
@@ -196,5 +238,10 @@ public class BlogsEntryMigrator {
 		new ObjectDefinitionMigrator();
 	private final ObjectEntryWriter _objectEntryWriter =
 		new ObjectEntryWriter();
+	private final Portal _portal = _portalSnapshot.get();
+	private final ReadingTimeCalculator _readingTimeCalculator =
+		_readingTimeCalculatorSnapshot.get();
+	private final ReadingTimeEntryLocalService _readingTimeEntryLocalService =
+		_readingTimeEntryLocalServiceSnapshot.get();
 
 }
