@@ -23,6 +23,8 @@ import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.template.TemplateContextContributor;
+import com.liferay.reading.time.message.ReadingTimeMessageProvider;
+import com.liferay.reading.time.service.ReadingTimeEntryLocalService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -63,6 +65,7 @@ public class CMSMigrationTemplateContextContributor
 				_groupLocalService, httpServletRequest, _journalContent,
 				_language, _objectDefinitionLocalService,
 				_objectEntryLocalService, _objectEntryService,
+				_readingTimeEntryLocalService, _readingTimeMessageProvider,
 				_userLocalService));
 	}
 
@@ -123,6 +126,12 @@ public class CMSMigrationTemplateContextContributor
 
 	@Reference
 	private ObjectEntryService _objectEntryService;
+
+	@Reference
+	private ReadingTimeEntryLocalService _readingTimeEntryLocalService;
+
+	@Reference(target = "(display.style=descriptive)")
+	private ReadingTimeMessageProvider _readingTimeMessageProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;
