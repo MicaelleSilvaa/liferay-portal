@@ -247,14 +247,14 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 		_assertSuccessful(_execute(_group.getGroupId(), false));
 
-		ReadingTimeEntry objectEntryReadingTimeEntry =
+		ReadingTimeEntry readingTimeEntry =
 			_readingTimeEntryLocalService.fetchReadingTimeEntry(
 				_getObjectEntry(
 					"CMS_MIGRATION_BLOGS_ENTRY",
 					"CMS_MIGRATION_BLOGS_ENTRY_" + blogsEntry.getEntryId()));
 
 		Assert.assertEquals(
-			120000, objectEntryReadingTimeEntry.getReadingTime());
+			120000, readingTimeEntry.getReadingTime());
 	}
 
 	@Test
