@@ -140,11 +140,18 @@ public class ObjectDefinitionMigrator {
 					ddmStructure.getDDMFormFields(false)),
 				String.valueOf(ddmStructure.getStructureId())));
 
+		Map<Locale, String> nameMap = ddmStructure.getNameMap();
+
+		if (Validator.isNull(nameMap.get(LocaleUtil.getSiteDefault()))) {
+			nameMap.put(
+				LocaleUtil.getSiteDefault(),
+				ddmStructure.getName(LocaleUtil.getSiteDefault()));
+		}
+
 		objectDefinition = _getOrAddObjectDefinition(
 			cmsMigrationContext,
 			ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENT_STRUCTURES,
-			ddmStructure.getNameMap(),
-			"CMSMigrationStructure" + ddmStructure.getStructureId(),
+			nameMap, "CMSMigrationStructure" + ddmStructure.getStructureId(),
 			CMSMigrationConstants.EXTERNAL_REFERENCE_CODE_PREFIX_DDM_STRUCTURE +
 				ddmStructure.getStructureId(),
 			objectFields);
