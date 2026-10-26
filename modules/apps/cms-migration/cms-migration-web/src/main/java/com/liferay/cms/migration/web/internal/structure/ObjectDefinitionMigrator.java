@@ -467,9 +467,23 @@ public class ObjectDefinitionMigrator {
 			}
 		}
 
-		if (labelMap.isEmpty()) {
-			labelMap.put(LocaleUtil.getSiteDefault(), defaultLabel);
+		Locale locale = LocaleUtil.getSiteDefault();
+
+		if (labelMap.containsKey(locale)) {
+			return labelMap;
 		}
+
+		String label = null;
+
+		if (localizedValue != null) {
+			label = localizedValue.getString(locale);
+		}
+
+		if (Validator.isNull(label)) {
+			label = defaultLabel;
+		}
+
+		labelMap.put(locale, label);
 
 		return labelMap;
 	}
