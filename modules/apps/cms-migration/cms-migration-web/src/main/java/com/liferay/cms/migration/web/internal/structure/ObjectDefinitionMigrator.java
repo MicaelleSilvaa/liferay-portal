@@ -10,6 +10,7 @@ import com.liferay.cms.migration.web.internal.constants.CMSMigrationConstants;
 import com.liferay.cms.migration.web.internal.migration.CMSMigrationContext;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -133,11 +134,13 @@ public class ObjectDefinitionMigrator {
 		List<ObjectField> objectFields = new ArrayList<>(
 			_getSystemObjectFields());
 
+		DDMForm ddmForm = ddmStructure.getFullHierarchyDDMForm();
+
 		objectFields.addAll(
 			_getDDMFormObjectFields(
 				cmsMigrationContext,
 				CMSMigrationDDMFormFieldUtil.getLeafDDMFormFields(
-					ddmStructure.getDDMFormFields(false)),
+					ddmForm.getDDMFormFields()),
 				String.valueOf(ddmStructure.getStructureId())));
 
 		Map<Locale, String> nameMap = ddmStructure.getNameMap();
@@ -212,7 +215,9 @@ public class ObjectDefinitionMigrator {
 					_ddmStructureLocalService.getDDMStructure(
 						kernelDDMStructure.getStructureId());
 
-				ddmFormFields.addAll(ddmStructure.getDDMFormFields(false));
+				DDMForm ddmForm = ddmStructure.getFullHierarchyDDMForm();
+
+				ddmFormFields.addAll(ddmForm.getDDMFormFields());
 			}
 
 			objectFields.addAll(

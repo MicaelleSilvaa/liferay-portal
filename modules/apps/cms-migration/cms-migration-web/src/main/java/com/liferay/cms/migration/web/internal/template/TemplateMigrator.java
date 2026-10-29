@@ -8,6 +8,7 @@ package com.liferay.cms.migration.web.internal.template;
 import com.liferay.cms.migration.web.internal.constants.CMSMigrationConstants;
 import com.liferay.cms.migration.web.internal.migration.CMSMigrationContext;
 import com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
@@ -153,8 +154,9 @@ public class TemplateMigrator {
 	private Set<String> _getVariableNames(DDMStructure ddmStructure) {
 		Set<String> variableNames = new LinkedHashSet<>();
 
-		_putFieldReferences(
-			ddmStructure.getDDMFormFields(false), variableNames);
+		DDMForm ddmForm = ddmStructure.getFullHierarchyDDMForm();
+
+		_putFieldReferences(ddmForm.getDDMFormFields(), variableNames);
 
 		Collections.addAll(variableNames, _RESERVED_VARIABLE_NAMES);
 
