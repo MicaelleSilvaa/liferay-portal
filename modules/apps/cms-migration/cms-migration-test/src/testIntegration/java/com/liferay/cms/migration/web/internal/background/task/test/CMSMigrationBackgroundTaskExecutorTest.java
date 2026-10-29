@@ -25,11 +25,13 @@ import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants;
 import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
+import com.liferay.dynamic.data.mapping.test.util.DDMTemplateTestUtil;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.journal.constants.JournalArticleConstants;
@@ -57,6 +59,7 @@ import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
 import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -616,6 +619,86 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 		Assert.assertEquals(
 			ObjectFieldConstants.DB_TYPE_DOUBLE, objectField.getDBType());
 		Assert.assertTrue(Validator.isNull(objectField.getIndexedLanguageId()));
+	}
+
+	@Test
+	public void testExecuteWithRepeatableFieldsetDDMFormField()
+		throws Exception {
+
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
+
+		DDMFormField ddmFormField = DDMFormTestUtil.createDDMFormField(
+			"fieldset", "fieldset", DDMFormFieldTypeConstants.FIELDSET,
+			StringPool.BLANK, false, true, false);
+
+		DDMFormTestUtil.addNestedTextDDMFormFields(ddmFormField, "text");
+
+		ddmForm.addDDMFormField(ddmFormField);
+
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName(), ddmForm);
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			_group.getGroupId(), _portal.getClassNameId(DDMStructure.class),
+			ddmStructure.getStructureId(),
+			_portal.getClassNameId(JournalArticle.class),
+			TemplateConstants.LANG_TYPE_FTL,
+			"<#list fieldset.getSiblings() as cur_fieldset>" +
+				"${cur_fieldset.text.getData()}</#list>",
+			LocaleUtil.US);
+
+		_journalArticle = JournalTestUtil.addArticleWithXMLContent(
+			_group.getGroupId(),
+			StringBundler.concat(
+				"<root available-locales=\"en_US\" default-locale=\"en_US\">",
+				_getFieldsetDynamicElement("a"),
+				_getFieldsetDynamicElement("b"), "</root>"),
+			ddmStructure.getStructureKey(), null);
+
+		_assertSuccessful(_execute(_group.getGroupId(), false));
+
+		ObjectEntry objectEntry = _getObjectEntry(
+			"CMS_MIGRATION_DDM_STRUCTURE_" + ddmStructure.getStructureId(),
+			"CMS_MIGRATION_JOURNAL_ARTICLE_" +
+				_journalArticle.getResourcePrimKey());
+
+		Assert.assertNull(
+			_objectFieldLocalService.fetchObjectField(
+				objectEntry.getObjectDefinitionId(), "text"));
+
+		Map<String, Serializable> values = objectEntry.getValues();
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+			GetterUtil.getString(values.get("fieldset")));
+
+		String[] texts = {"a", "b"};
+
+		Assert.assertEquals(texts.length, jsonArray.length());
+
+		for (int i = 0; i < texts.length; i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			JSONArray nestedFieldValuesJSONArray = jsonObject.getJSONArray(
+				"nestedFieldValues");
+
+			JSONObject nestedFieldValueJSONObject =
+				nestedFieldValuesJSONArray.getJSONObject(0);
+
+			JSONObject valuesJSONObject =
+				nestedFieldValueJSONObject.getJSONObject("values");
+
+			Assert.assertEquals(texts[i], valuesJSONObject.getString("en_US"));
+		}
+
+		DDMTemplate migratedDDMTemplate =
+			_ddmTemplateLocalService.getDDMTemplateByExternalReferenceCode(
+				"CMS_MIGRATION_DDM_TEMPLATE_" + ddmTemplate.getTemplateId(),
+				_group.getGroupId());
+
+		String script = migratedDDMTemplate.getScript();
+
+		Assert.assertTrue(
+			script, script.contains("cmsMigrationContext[\"fieldset\"]"));
 	}
 
 	@Test
@@ -1501,6 +1584,18 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 		sb.append("</p>");
 
 		return sb.toString();
+	}
+
+	private String _getFieldsetDynamicElement(String text) {
+		return StringBundler.concat(
+			"<dynamic-element field-reference=\"fieldset\" index-type=\"\" ",
+			"instance-id=\"", RandomTestUtil.randomString(8),
+			"\" name=\"fieldset\" type=\"fieldset\"><dynamic-element ",
+			"field-reference=\"text\" index-type=\"text\" instance-id=\"",
+			RandomTestUtil.randomString(8),
+			"\" name=\"text\" type=\"text\"><dynamic-content ",
+			"language-id=\"en_US\"><![CDATA[", text,
+			"]]></dynamic-content></dynamic-element></dynamic-element>");
 	}
 
 	private ObjectEntry _getObjectEntry(FileEntry fileEntry) throws Exception {
