@@ -504,10 +504,11 @@ public class CMSMigrationTemplateContextHelper {
 		if (CMSMigrationDDMFormFieldUtil.isJSONField(ddmFormField)) {
 			return _getTemplateNodeFromJSON(
 				ddmFormField, locale, themeDisplay,
-				GetterUtil.getString(
-					values.get(
-						CMSMigrationDDMFormFieldUtil.getObjectFieldName(
-							ddmFormField))));
+				CMSMigrationDDMFormFieldUtil.unescapeJSONFieldValue(
+					GetterUtil.getString(
+						values.get(
+							CMSMigrationDDMFormFieldUtil.getObjectFieldName(
+								ddmFormField)))));
 		}
 
 		String languageId = LocaleUtil.toLanguageId(locale);
