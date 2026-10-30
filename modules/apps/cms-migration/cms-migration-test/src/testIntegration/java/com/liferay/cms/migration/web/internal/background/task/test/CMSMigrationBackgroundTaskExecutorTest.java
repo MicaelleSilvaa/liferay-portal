@@ -96,6 +96,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -551,12 +552,17 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				"${cur_fieldset.text.getData()}</#list>",
 			LocaleUtil.US);
 
+		String[] texts = {
+			"<a href=\"https://www.liferay.com\">a</a> & b",
+			RandomTestUtil.randomString(65000)
+		};
+
 		_journalArticle = JournalTestUtil.addArticleWithXMLContent(
 			_group.getGroupId(),
 			StringBundler.concat(
 				"<root available-locales=\"en_US\" default-locale=\"en_US\">",
-				_getFieldsetDynamicElement("a"),
-				_getFieldsetDynamicElement("b"), "</root>"),
+				_getFieldsetDynamicElement(texts[0]),
+				_getFieldsetDynamicElement(texts[1]), "</root>"),
 			ddmStructure.getStructureKey(), null);
 
 		_assertSuccessful(_execute(_group.getGroupId(), false));
@@ -570,12 +576,20 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			_objectFieldLocalService.fetchObjectField(
 				objectEntry.getObjectDefinitionId(), "text"));
 
+		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
+			objectEntry.getObjectDefinitionId(), "fieldset");
+
+		Assert.assertEquals(
+			ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT,
+			objectField.getBusinessType());
+
 		Map<String, Serializable> values = objectEntry.getValues();
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
-			GetterUtil.getString(values.get("fieldset")));
-
-		String[] texts = {"a", "b"};
+			StringUtil.replace(
+				GetterUtil.getString(values.get("fieldset")),
+				new String[] {"&quot;", "&lt;", "&gt;", "&amp;"},
+				new String[] {"\"", "<", ">", "&"}));
 
 		Assert.assertEquals(texts.length, jsonArray.length());
 

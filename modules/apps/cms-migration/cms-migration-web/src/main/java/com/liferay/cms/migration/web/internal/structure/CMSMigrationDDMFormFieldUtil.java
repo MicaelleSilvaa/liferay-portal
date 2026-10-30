@@ -11,6 +11,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -18,6 +19,7 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -30,13 +32,19 @@ import java.util.Set;
  */
 public class CMSMigrationDDMFormFieldUtil {
 
+	public static String escapeJSONFieldValue(String json) {
+		return StringUtil.replace(
+			json, new char[] {'&', '<', '>'},
+			new String[] {"&amp;", "&lt;", "&gt;"});
+	}
+
 	public static String getAltObjectFieldName(DDMFormField ddmFormField) {
 		return getObjectFieldName(ddmFormField) + "Alt";
 	}
 
 	public static String getBusinessType(DDMFormField ddmFormField) {
 		if (isJSONField(ddmFormField)) {
-			return ObjectFieldConstants.BUSINESS_TYPE_LONG_TEXT;
+			return ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT;
 		}
 
 		String type = ddmFormField.getType();
@@ -259,6 +267,11 @@ public class CMSMigrationDDMFormFieldUtil {
 		return false;
 	}
 
+	public static String unescapeJSONFieldValue(String value) {
+		return StringUtil.replace(
+			value, StringPool.AMPERSAND, StringPool.SEMICOLON, _unescapeMap);
+	}
+
 	private static String _toAlphanumeric(String s) {
 		if (s == null) {
 			return StringPool.BLANK;
@@ -291,5 +304,18 @@ public class CMSMigrationDDMFormFieldUtil {
 		StringUtil.toLowerCase(
 			CMSMigrationConstants.OBJECT_FIELD_NAME_SMALL_IMAGE_URL),
 		CMSMigrationConstants.OBJECT_FIELD_NAME_TITLE);
+	private static final Map<String, String> _unescapeMap = HashMapBuilder.put(
+		"#39", StringPool.APOSTROPHE
+	).put(
+		"amp", StringPool.AMPERSAND
+	).put(
+		"apos", StringPool.APOSTROPHE
+	).put(
+		"gt", StringPool.GREATER_THAN
+	).put(
+		"lt", StringPool.LESS_THAN
+	).put(
+		"quot", StringPool.QUOTE
+	).build();
 
 }
