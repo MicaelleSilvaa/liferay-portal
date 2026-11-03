@@ -51,6 +51,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
@@ -77,7 +78,11 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.template.StringTemplateResource;
+import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.templateparser.TemplateNode;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
@@ -294,6 +299,79 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 					"CMS_MIGRATION_BLOGS_ENTRY_" + blogsEntry.getEntryId()));
 
 		Assert.assertEquals(120000, readingTimeEntry.getReadingTime());
+	}
+
+	@Test
+	public void testExecuteWithCheckboxDDMFormField() throws Exception {
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
+
+		ddmForm.addDDMFormField(
+			DDMFormTestUtil.createDDMFormField(
+				"checkbox", "checkbox", DDMFormFieldTypeConstants.CHECKBOX,
+				"boolean", false, false, false));
+
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName(), ddmForm);
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			_group.getGroupId(), _portal.getClassNameId(DDMStructure.class),
+			ddmStructure.getStructureId(),
+			_portal.getClassNameId(JournalArticle.class),
+			TemplateConstants.LANG_TYPE_FTL,
+			"${getterUtil.getBoolean(checkbox.getData())?c}", LocaleUtil.US);
+
+		_journalArticle = JournalTestUtil.addArticleWithXMLContent(
+			_group.getGroupId(),
+			StringBundler.concat(
+				"<root available-locales=\"en_US\" default-locale=\"en_US\">",
+				"<dynamic-element field-reference=\"checkbox\" ",
+				"index-type=\"keyword\" instance-id=\"",
+				RandomTestUtil.randomString(8),
+				"\" name=\"checkbox\" type=\"checkbox\"><dynamic-content ",
+				"language-id=\"en_US\"><![CDATA[true]]></dynamic-content>",
+				"</dynamic-element></root>"),
+			ddmStructure.getStructureKey(), null);
+
+		_assertSuccessful(_execute(_group.getGroupId(), false));
+
+		ObjectEntry objectEntry = _getObjectEntry(_journalArticle);
+
+		MockHttpServletRequest mockHttpServletRequest =
+			_getMockHttpServletRequest(
+				LayoutTestUtil.addTypeContentLayout(_group));
+
+		DDMTemplate migratedDDMTemplate =
+			_ddmTemplateLocalService.getDDMTemplateByExternalReferenceCode(
+				"CMS_MIGRATION_DDM_TEMPLATE_" + ddmTemplate.getTemplateId(),
+				_group.getGroupId());
+
+		Template template = TemplateManagerUtil.getTemplate(
+			TemplateConstants.LANG_TYPE_FTL,
+			new StringTemplateResource(
+				migratedDDMTemplate.getTemplateKey(),
+				migratedDDMTemplate.getScript()),
+			false);
+
+		template.prepare(mockHttpServletRequest);
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)mockHttpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		template.put(
+			"objectEntryId",
+			new TemplateNode(
+				themeDisplay, "objectEntryId",
+				String.valueOf(objectEntry.getObjectEntryId()),
+				StringPool.BLANK, new HashMap<>()));
+
+		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
+
+		template.processTemplate(unsyncStringWriter);
+
+		String content = unsyncStringWriter.toString();
+
+		Assert.assertTrue(content, content.contains(">true</div>"));
 	}
 
 	@Test
@@ -1604,6 +1682,24 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			"]]></dynamic-content></dynamic-element></dynamic-element>");
 	}
 
+	private MockHttpServletRequest _getMockHttpServletRequest(Layout layout)
+		throws Exception {
+
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		ThemeDisplay themeDisplay = ContentLayoutTestUtil.getThemeDisplay(
+			_companyLocalService.getCompany(_group.getCompanyId()), _group,
+			layout);
+
+		themeDisplay.setRequest(mockHttpServletRequest);
+
+		mockHttpServletRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
+
+		return mockHttpServletRequest;
+	}
+
 	private ObjectEntry _getObjectEntry(FileEntry fileEntry) throws Exception {
 		return _getObjectEntry(
 			"CMS_MIGRATION_DL_FILE_ENTRY_TYPE_0",
@@ -1675,18 +1771,6 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			BlogsEntry blogsEntry, Layout layout)
 		throws Exception {
 
-		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
-
-		ThemeDisplay themeDisplay = ContentLayoutTestUtil.getThemeDisplay(
-			_companyLocalService.getCompany(_group.getCompanyId()), _group,
-			layout);
-
-		themeDisplay.setRequest(mockHttpServletRequest);
-
-		mockHttpServletRequest.setAttribute(
-			WebKeys.THEME_DISPLAY, themeDisplay);
-
 		ObjectEntry objectEntry = _getObjectEntry(
 			"CMS_MIGRATION_BLOGS_ENTRY",
 			"CMS_MIGRATION_BLOGS_ENTRY_" + blogsEntry.getEntryId());
@@ -1715,7 +1799,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				_assetEntryLocalService.getEntry(
 					objectEntry.getModelClassName(),
 					objectEntry.getObjectEntryId())),
-			_group.getGroupId(), mockHttpServletRequest,
+			_group.getGroupId(), _getMockHttpServletRequest(layout),
 			new MockHttpServletResponse(), false);
 	}
 
