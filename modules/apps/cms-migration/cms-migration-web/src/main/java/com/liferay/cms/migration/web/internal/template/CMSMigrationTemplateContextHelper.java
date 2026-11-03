@@ -579,7 +579,10 @@ public class CMSMigrationTemplateContextHelper {
 			return StringPool.BLANK;
 		}
 
-		if (businessType.equals(ObjectFieldConstants.BUSINESS_TYPE_DATE)) {
+		if (businessType.equals(ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN)) {
+			return String.valueOf(GetterUtil.getBoolean(value));
+		}
+		else if (businessType.equals(ObjectFieldConstants.BUSINESS_TYPE_DATE)) {
 			return _formatDate("yyyy-MM-dd", value);
 		}
 		else if (businessType.equals(
