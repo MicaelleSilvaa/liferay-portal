@@ -12,6 +12,7 @@ import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.asset.list.service.AssetListEntrySegmentsEntryRelLocalService;
 import com.liferay.asset.publisher.util.AssetPublisherHelper;
 import com.liferay.blogs.service.BlogsEntryLocalService;
+import com.liferay.cms.migration.web.internal.content.AttachmentAlternativeTextWriter;
 import com.liferay.cms.migration.web.internal.content.AttachmentCopier;
 import com.liferay.cms.migration.web.internal.content.BlogsEntryMigrator;
 import com.liferay.cms.migration.web.internal.content.FileEntryMigrator;
@@ -285,20 +286,23 @@ public class CMSMigrationBackgroundTaskExecutor
 				_layoutLocalService, _layoutPageTemplateEntryLocalService,
 				layoutReferenceRewriter, objectDefinitionMigrator, _portal);
 
+		AttachmentAlternativeTextWriter attachmentAlternativeTextWriter =
+			new AttachmentAlternativeTextWriter(_dlAppLocalService);
+
 		DDMFormValuesConverter ddmFormValuesConverter =
 			new DDMFormValuesConverter(
-				_dlAppLocalService, htmlReferenceRewriter,
-				_journalArticleLocalService, _jsonFactory,
-				objectDefinitionMigrator);
+				attachmentAlternativeTextWriter, _dlAppLocalService,
+				htmlReferenceRewriter, _journalArticleLocalService,
+				_jsonFactory, objectDefinitionMigrator);
 
 		FileEntryMigrator fileEntryMigrator = new FileEntryMigrator(
-			_attachmentManager, ddmFormValuesConverter,
-			_ddmStorageEngineManager, _ddmStructureLocalService,
-			_dlAppLocalService, _dlFileEntryLocalService,
-			_dlFileEntryMetadataLocalService, _dlFileEntryTypeLocalService,
-			_dlVideoExternalShortcutResolver, _friendlyURLEntryLocalService,
-			objectDefinitionMigrator, objectEntryWriter,
-			_objectFieldLocalService, _portal);
+			attachmentAlternativeTextWriter, _attachmentManager,
+			ddmFormValuesConverter, _ddmStorageEngineManager,
+			_ddmStructureLocalService, _dlAppLocalService,
+			_dlFileEntryLocalService, _dlFileEntryMetadataLocalService,
+			_dlFileEntryTypeLocalService, _dlVideoExternalShortcutResolver,
+			_friendlyURLEntryLocalService, objectDefinitionMigrator,
+			objectEntryWriter, _objectFieldLocalService, _portal);
 
 		FolderMigrator folderMigrator = new FolderMigrator(
 			_dlFolderLocalService, _journalFolderLocalService,
