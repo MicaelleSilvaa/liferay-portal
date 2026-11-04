@@ -20,7 +20,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -47,6 +46,17 @@ import java.util.regex.Pattern;
  * @author Lino Alves
  */
 public class TemplateMigrator {
+
+	public TemplateMigrator(
+		DDMTemplateLocalService ddmTemplateLocalService,
+		InfoItemReferenceMapper infoItemReferenceMapper, Portal portal,
+		TemplateEntryLocalService templateEntryLocalService) {
+
+		_ddmTemplateLocalService = ddmTemplateLocalService;
+		_infoItemReferenceMapper = infoItemReferenceMapper;
+		_portal = portal;
+		_templateEntryLocalService = templateEntryLocalService;
+	}
 
 	public String getScript(
 		DDMStructure ddmStructure, DDMTemplate ddmTemplate) {
@@ -426,20 +436,12 @@ public class TemplateMigrator {
 		"templatesPath", "viewMode"
 	};
 
-	private static final Snapshot<DDMTemplateLocalService>
-		_ddmTemplateLocalServiceSnapshot = new Snapshot<>(
-			TemplateMigrator.class, DDMTemplateLocalService.class);
 	private static final Pattern _informationTemplateQuotedVariablePattern =
 		Pattern.compile(
 			"\\.vars\\[\\s*\"((?:DDMStructure|JournalArticle)_[^\"]+)\"" +
 				"\\s*\\]");
 	private static final Pattern _informationTemplateVariablePattern =
 		Pattern.compile("(?<![\\w.\"#])((?:DDMStructure|JournalArticle)_\\w+)");
-	private static final Snapshot<Portal> _portalSnapshot = new Snapshot<>(
-		TemplateMigrator.class, Portal.class);
-	private static final Snapshot<TemplateEntryLocalService>
-		_templateEntryLocalServiceSnapshot = new Snapshot<>(
-			TemplateMigrator.class, TemplateEntryLocalService.class);
 	private static final Pattern _tokenPattern = Pattern.compile(
 		"(?<!@)@([a-z_]+)@(?!@)");
 	private static final Set<String> _tokens = new LinkedHashSet<>(
@@ -454,12 +456,9 @@ public class TemplateMigrator {
 			"protocol", "root_path", "scope_group_id", "site_group_id",
 			"theme_image_path"));
 
-	private final DDMTemplateLocalService _ddmTemplateLocalService =
-		_ddmTemplateLocalServiceSnapshot.get();
-	private final InfoItemReferenceMapper _infoItemReferenceMapper =
-		new InfoItemReferenceMapper();
-	private final Portal _portal = _portalSnapshot.get();
-	private final TemplateEntryLocalService _templateEntryLocalService =
-		_templateEntryLocalServiceSnapshot.get();
+	private final DDMTemplateLocalService _ddmTemplateLocalService;
+	private final InfoItemReferenceMapper _infoItemReferenceMapper;
+	private final Portal _portal;
+	private final TemplateEntryLocalService _templateEntryLocalService;
 
 }
