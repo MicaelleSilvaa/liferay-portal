@@ -1012,8 +1012,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
 				null, TestPropsValues.getUserId(), _group.getGroupId(), 0, null,
 				_portal.getClassNameId(JournalArticle.class),
-				_ddmStructure.getStructureKey(),
-				RandomTestUtil.randomString(),
+				_ddmStructure.getStructureKey(), RandomTestUtil.randomString(),
 				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, 0,
 				WorkflowConstants.STATUS_APPROVED,
 				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
@@ -1060,9 +1059,10 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			fragmentEntryLink.getEditableValues());
 
 		TemplateEntry templateEntry =
-			_templateEntryLocalService.fetchTemplateEntryByExternalReferenceCode(
-				"CMS_MIGRATION_DDM_TEMPLATE_" + ddmTemplate.getTemplateId(),
-				_group.getGroupId());
+			_templateEntryLocalService.
+				fetchTemplateEntryByExternalReferenceCode(
+					"CMS_MIGRATION_DDM_TEMPLATE_" + ddmTemplate.getTemplateId(),
+					_group.getGroupId());
 
 		Assert.assertEquals(
 			"ddmTemplate__ddmTemplate_" + templateEntry.getTemplateEntryId(),
