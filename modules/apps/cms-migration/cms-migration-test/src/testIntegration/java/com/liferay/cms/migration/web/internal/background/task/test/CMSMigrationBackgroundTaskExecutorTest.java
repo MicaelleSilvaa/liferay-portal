@@ -575,7 +575,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				objectEntry.getObjectDefinitionId(), "text"));
 
 		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
-			objectEntry.getObjectDefinitionId(), "fieldset");
+			objectEntry.getObjectDefinitionId(), "fieldsetFieldSet");
 
 		Assert.assertEquals(
 			ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT,
@@ -585,7 +585,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
 			StringUtil.replace(
-				GetterUtil.getString(values.get("fieldset")),
+				GetterUtil.getString(values.get("fieldsetFieldSet")),
 				new String[] {"&quot;", "&lt;", "&gt;", "&amp;"},
 				new String[] {"\"", "<", ">", "&"}));
 
@@ -596,6 +596,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				texts[i],
 				JSONUtil.getValueAsString(
 					jsonArray.getJSONObject(i), "JSONArray/nestedFieldValues",
+					"JSONObject/1", "JSONArray/nestedFieldValues",
 					"JSONObject/0", "JSONObject/values", "Object/en_US"));
 		}
 
@@ -606,7 +607,8 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 		String script = migratedDDMTemplate.getScript();
 
-		Assert.assertTrue(script.contains("cmsMigrationContext[\"fieldset\"]"));
+		Assert.assertTrue(
+			script.contains("cmsMigrationContext[\"fieldsetFieldSet\"]"));
 	}
 
 	@Test
