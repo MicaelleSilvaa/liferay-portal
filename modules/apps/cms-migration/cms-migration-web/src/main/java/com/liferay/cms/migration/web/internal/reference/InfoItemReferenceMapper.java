@@ -179,7 +179,7 @@ public class InfoItemReferenceMapper {
 				fieldId.substring("DDMStructure_".length()), link);
 		}
 
-		String templateKey = _getTemplateKey(fieldId);
+		String templateKey = getTemplateKey(fieldId);
 
 		if (templateKey != null) {
 			long templateEntryId = _getTemplateEntryId(
@@ -362,6 +362,26 @@ public class InfoItemReferenceMapper {
 			cmsMigrationContext, ddmStructure, templateKey);
 	}
 
+	/**
+	 * Returns the key of the Web Content template that the field displays, or
+	 * <code>null</code> if the field does not display a Web Content template.
+	 */
+	public String getTemplateKey(String fieldId) {
+		String name = fieldId;
+
+		if (name.startsWith(StringPool.UNDERLINE)) {
+			name = name.substring(1);
+		}
+
+		if (!name.startsWith("ddmTemplate_") ||
+			name.startsWith("ddmTemplate__ddmTemplate_")) {
+
+			return null;
+		}
+
+		return name.substring("ddmTemplate_".length());
+	}
+
 	private JournalArticle _fetchJournalArticle(long classPK) {
 		JournalArticle journalArticle =
 			_journalArticleLocalService.fetchLatestArticle(classPK);
@@ -459,22 +479,6 @@ public class InfoItemReferenceMapper {
 		}
 
 		return 0;
-	}
-
-	private String _getTemplateKey(String fieldId) {
-		String name = fieldId;
-
-		if (name.startsWith(StringPool.UNDERLINE)) {
-			name = name.substring(1);
-		}
-
-		if (!name.startsWith("ddmTemplate_") ||
-			name.startsWith("ddmTemplate__ddmTemplate_")) {
-
-			return null;
-		}
-
-		return name.substring("ddmTemplate_".length());
 	}
 
 	private String _normalizeTemplateKey(String templateKey) {

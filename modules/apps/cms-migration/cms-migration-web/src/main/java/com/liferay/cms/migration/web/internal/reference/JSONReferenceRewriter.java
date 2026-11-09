@@ -269,6 +269,22 @@ public class JSONReferenceRewriter {
 			referenceScope.getDDMStructure(), objectDefinition, fieldId, link);
 
 		if (newFieldId == null) {
+			String templateKey = _infoItemReferenceMapper.getTemplateKey(
+				fieldId);
+
+			if (templateKey != null) {
+				cmsMigrationContext.getCMSMigrationReport(
+				).addWarning(
+					StringBundler.concat(
+						"The field ", fieldId, " has no counterpart in ",
+						objectDefinition.getName(),
+						" because the Web Content template ", templateKey,
+						" was not migrated")
+				);
+
+				return false;
+			}
+
 			cmsMigrationContext.getCMSMigrationReport(
 			).addWarning(
 				StringBundler.concat(
