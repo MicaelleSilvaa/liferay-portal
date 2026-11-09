@@ -40,6 +40,9 @@ import com.liferay.journal.constants.JournalFolderConstants;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.test.util.JournalTestUtil;
+import com.liferay.layout.page.template.constants.LayoutPageTemplateEntryTypeConstants;
+import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
+import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.test.util.ContentLayoutTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.constants.ObjectFieldConstants;
@@ -184,12 +187,11 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 				objectDefinition);
 		}
 
-		if (_journalArticle != null) {
+		for (long ddmStructureId : _getDDMStructureIds()) {
 			ObjectDefinition objectDefinition =
 				_objectDefinitionLocalService.
 					fetchObjectDefinitionByExternalReferenceCode(
-						"CMS_MIGRATION_DDM_STRUCTURE_" +
-							_journalArticle.getDDMStructureId(),
+						"CMS_MIGRATION_DDM_STRUCTURE_" + ddmStructureId,
 						_group.getCompanyId());
 
 			if (objectDefinition != null) {
@@ -992,6 +994,89 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 	}
 
 	@Test
+	public void testExecuteWithRewritePagesAndDisplayPageTemplateWithoutContent()
+		throws Exception {
+
+		_ddmStructure = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName());
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			_group.getGroupId(), _portal.getClassNameId(DDMStructure.class),
+			_ddmStructure.getStructureId(),
+			_portal.getClassNameId(JournalArticle.class),
+			RandomTestUtil.randomString(), TemplateConstants.LANG_TYPE_FTL,
+			"${.vars['reserved-article-title'].data}",
+			LocaleUtil.getSiteDefault());
+
+		LayoutPageTemplateEntry layoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(), 0, null,
+				_portal.getClassNameId(JournalArticle.class),
+				_ddmStructure.getStructureKey(),
+				RandomTestUtil.randomString(),
+				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, 0,
+				WorkflowConstants.STATUS_APPROVED,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+		Layout layout = _layoutLocalService.getLayout(
+			layoutPageTemplateEntry.getPlid());
+
+		ContentLayoutTestUtil.addFragmentEntryLinkToLayout(
+			JSONUtil.put(
+				"com.liferay.fragment.entry.processor.editable." +
+					"EditableFragmentEntryProcessor",
+				JSONUtil.put(
+					"element-html",
+					JSONUtil.put(
+						"defaultValue", RandomTestUtil.randomString()
+					).put(
+						"mappedField",
+						"ddmTemplate_" + ddmTemplate.getTemplateKey()
+					))
+			).toString(),
+			layout,
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				layout.getPlid()));
+
+		_assertSuccessful(_execute(_group.getGroupId(), true));
+
+		LayoutPageTemplateEntry newLayoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				getLayoutPageTemplateEntryByExternalReferenceCode(
+					"CMS_MIGRATION_LAYOUT_PAGE_TEMPLATE_ENTRY_" +
+						layoutPageTemplateEntry.getLayoutPageTemplateEntryId(),
+					_group.getGroupId());
+
+		List<FragmentEntryLink> fragmentEntryLinks =
+			_fragmentEntryLinkLocalService.getFragmentEntryLinksByPlid(
+				_group.getGroupId(), newLayoutPageTemplateEntry.getPlid());
+
+		Assert.assertEquals(
+			fragmentEntryLinks.toString(), 1, fragmentEntryLinks.size());
+
+		FragmentEntryLink fragmentEntryLink = fragmentEntryLinks.get(0);
+
+		JSONObject editableValuesJSONObject = JSONFactoryUtil.createJSONObject(
+			fragmentEntryLink.getEditableValues());
+
+		TemplateEntry templateEntry =
+			_templateEntryLocalService.fetchTemplateEntryByExternalReferenceCode(
+				"CMS_MIGRATION_DDM_TEMPLATE_" + ddmTemplate.getTemplateId(),
+				_group.getGroupId());
+
+		Assert.assertEquals(
+			"ddmTemplate__ddmTemplate_" + templateEntry.getTemplateEntryId(),
+			editableValuesJSONObject.getJSONObject(
+				"com.liferay.fragment.entry.processor.editable." +
+					"EditableFragmentEntryProcessor"
+			).getJSONObject(
+				"element-html"
+			).getString(
+				"mappedField"
+			));
+	}
+
+	@Test
 	public void testExecuteWithRewritePagesAndDisplayPageURL()
 		throws Exception {
 
@@ -1592,6 +1677,22 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 		return sb.toString();
 	}
 
+	private long[] _getDDMStructureIds() {
+		long[] ddmStructureIds = new long[0];
+
+		if (_ddmStructure != null) {
+			ddmStructureIds = ArrayUtil.append(
+				ddmStructureIds, _ddmStructure.getStructureId());
+		}
+
+		if (_journalArticle != null) {
+			ddmStructureIds = ArrayUtil.append(
+				ddmStructureIds, _journalArticle.getDDMStructureId());
+		}
+
+		return ddmStructureIds;
+	}
+
 	private String _getFieldsetDynamicElement(String text) {
 		return StringBundler.concat(
 			"<dynamic-element field-reference=\"fieldset\" index-type=\"\" ",
@@ -1741,6 +1842,8 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 	@Inject
 	private CompanyLocalService _companyLocalService;
 
+	private DDMStructure _ddmStructure;
+
 	@Inject
 	private DDMTemplateLocalService _ddmTemplateLocalService;
 
@@ -1774,6 +1877,10 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 	@Inject
 	private LayoutLocalService _layoutLocalService;
+
+	@Inject
+	private LayoutPageTemplateEntryLocalService
+		_layoutPageTemplateEntryLocalService;
 
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
