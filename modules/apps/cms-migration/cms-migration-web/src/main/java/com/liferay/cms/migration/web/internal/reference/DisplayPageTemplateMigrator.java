@@ -12,6 +12,7 @@ import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.cms.migration.web.internal.constants.CMSMigrationConstants;
 import com.liferay.cms.migration.web.internal.migration.CMSMigrationContext;
 import com.liferay.cms.migration.web.internal.structure.ObjectDefinitionMigrator;
+import com.liferay.cms.migration.web.internal.template.TemplateMigrator;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryType;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
@@ -54,7 +55,8 @@ public class DisplayPageTemplateMigrator {
 		LayoutLocalService layoutLocalService,
 		LayoutPageTemplateEntryLocalService layoutPageTemplateEntryLocalService,
 		LayoutReferenceRewriter layoutReferenceRewriter,
-		ObjectDefinitionMigrator objectDefinitionMigrator, Portal portal) {
+		ObjectDefinitionMigrator objectDefinitionMigrator, Portal portal,
+		TemplateMigrator templateMigrator) {
 
 		_assetDisplayPageEntryLocalService = assetDisplayPageEntryLocalService;
 		_ddmStructureLocalService = ddmStructureLocalService;
@@ -66,6 +68,7 @@ public class DisplayPageTemplateMigrator {
 		_layoutReferenceRewriter = layoutReferenceRewriter;
 		_objectDefinitionMigrator = objectDefinitionMigrator;
 		_portal = portal;
+		_templateMigrator = templateMigrator;
 	}
 
 	public void migrate(CMSMigrationContext cmsMigrationContext) {
@@ -180,11 +183,17 @@ public class DisplayPageTemplateMigrator {
 			return null;
 		}
 
-		return new ReferenceScope(
-			ddmStructure,
+		ObjectDefinition objectDefinition =
 			_objectDefinitionMigrator.getOrAddDDMStructureObjectDefinition(
-				cmsMigrationContext, ddmStructure),
-			sourceClassName);
+				cmsMigrationContext, ddmStructure);
+
+		// A structure without content is registered here, after the
+		// templates phase, so its templates are migrated now
+
+		_templateMigrator.migrate(cmsMigrationContext, ddmStructure);
+
+		return new ReferenceScope(
+			ddmStructure, objectDefinition, sourceClassName);
 	}
 
 	private void _migrate(
@@ -370,5 +379,6 @@ public class DisplayPageTemplateMigrator {
 	private final LayoutReferenceRewriter _layoutReferenceRewriter;
 	private final ObjectDefinitionMigrator _objectDefinitionMigrator;
 	private final Portal _portal;
+	private final TemplateMigrator _templateMigrator;
 
 }

@@ -279,12 +279,17 @@ public class CMSMigrationBackgroundTaskExecutor
 				_layoutPageTemplateStructureLocalService,
 				_layoutPageTemplateStructureRelLocalService);
 
+		TemplateMigrator templateMigrator = new TemplateMigrator(
+			_ddmTemplateLocalService, infoItemReferenceMapper, _portal,
+			_templateEntryLocalService);
+
 		DisplayPageTemplateMigrator displayPageTemplateMigrator =
 			new DisplayPageTemplateMigrator(
 				_assetDisplayPageEntryLocalService, _ddmStructureLocalService,
 				_dlFileEntryTypeLocalService, infoItemReferenceMapper,
 				_layoutLocalService, _layoutPageTemplateEntryLocalService,
-				layoutReferenceRewriter, objectDefinitionMigrator, _portal);
+				layoutReferenceRewriter, objectDefinitionMigrator, _portal,
+				templateMigrator);
 
 		AttachmentAlternativeTextWriter attachmentAlternativeTextWriter =
 			new AttachmentAlternativeTextWriter(_dlAppLocalService);
@@ -330,10 +335,6 @@ public class CMSMigrationBackgroundTaskExecutor
 					infoItemReferenceMapper,
 					_siteNavigationMenuItemLocalService,
 					_siteNavigationMenuLocalService);
-
-		TemplateMigrator templateMigrator = new TemplateMigrator(
-			_ddmTemplateLocalService, infoItemReferenceMapper, _portal,
-			_templateEntryLocalService);
 
 		return new CMSMigrationManager(
 			_assetEntryLocalService, assetListEntryReferenceRewriter,

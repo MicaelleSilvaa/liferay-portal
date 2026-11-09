@@ -29,6 +29,7 @@ import com.liferay.template.service.TemplateEntryLocalService;
 
 import java.nio.charset.StandardCharsets;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -118,71 +119,89 @@ public class TemplateMigrator {
 
 	public void migrate(CMSMigrationContext cmsMigrationContext) {
 		for (DDMStructure ddmStructure :
-				cmsMigrationContext.getDDMStructures()) {
+				new ArrayList<>(cmsMigrationContext.getDDMStructures())) {
 
-			ObjectDefinition objectDefinition =
-				cmsMigrationContext.getObjectDefinition(
-					JournalArticle.class.getName(),
-					ddmStructure.getStructureId());
+			migrate(cmsMigrationContext, ddmStructure);
+		}
+	}
 
-			List<DDMTemplate> ddmTemplates = Collections.emptyList();
+	/**
+	 * Migrates the templates of one structure, unless they were already
+	 * migrated. References to a structure that has no content, such as its
+	 * display page templates, register the structure after the templates
+	 * phase, so they call this method to migrate its templates on demand.
+	 */
+	public void migrate(
+		CMSMigrationContext cmsMigrationContext, DDMStructure ddmStructure) {
+
+		ObjectDefinition objectDefinition =
+			cmsMigrationContext.getObjectDefinition(
+				JournalArticle.class.getName(), ddmStructure.getStructureId());
+
+		if ((objectDefinition == null) ||
+			!cmsMigrationContext.addTemplateDDMStructureId(
+				ddmStructure.getStructureId())) {
+
+			return;
+		}
+
+		List<DDMTemplate> ddmTemplates = Collections.emptyList();
+
+		try {
+			ddmTemplates = _ddmTemplateLocalService.getTemplates(
+				cmsMigrationContext.getSourceGroupId(),
+				_portal.getClassNameId(DDMStructure.class),
+				ddmStructure.getStructureId(), true);
+		}
+		catch (PortalException portalException) {
+			cmsMigrationContext.getCMSMigrationReport(
+			).addError(
+				StringBundler.concat(
+					"Unable to get the templates of the structure ",
+					ddmStructure.getStructureKey(), ": ",
+					portalException.getMessage())
+			);
+		}
+
+		for (DDMTemplate ddmTemplate : ddmTemplates) {
+			cmsMigrationContext.sendStatus(ddmTemplate.getTemplateKey());
 
 			try {
-				ddmTemplates = _ddmTemplateLocalService.getTemplates(
-					cmsMigrationContext.getSourceGroupId(),
-					_portal.getClassNameId(DDMStructure.class),
-					ddmStructure.getStructureId(), true);
+				_migrate(
+					cmsMigrationContext, ddmStructure, ddmTemplate,
+					objectDefinition);
 			}
-			catch (PortalException portalException) {
+			catch (Exception exception) {
 				cmsMigrationContext.getCMSMigrationReport(
 				).addError(
 					StringBundler.concat(
-						"Unable to get the templates of the structure ",
-						ddmStructure.getStructureKey(), ": ",
-						portalException.getMessage())
+						"Unable to migrate the template ",
+						ddmTemplate.getTemplateKey(), ": ",
+						exception.getMessage())
 				);
 			}
+		}
 
-			for (DDMTemplate ddmTemplate : ddmTemplates) {
-				cmsMigrationContext.sendStatus(ddmTemplate.getTemplateKey());
+		for (TemplateEntry templateEntry :
+				_templateEntryLocalService.getTemplateEntries(
+					cmsMigrationContext.getSourceGroupId(),
+					JournalArticle.class.getName(),
+					String.valueOf(ddmStructure.getStructureId()),
+					QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 
-				try {
-					_migrate(
-						cmsMigrationContext, ddmStructure, ddmTemplate,
-						objectDefinition);
-				}
-				catch (Exception exception) {
-					cmsMigrationContext.getCMSMigrationReport(
-					).addError(
-						StringBundler.concat(
-							"Unable to migrate the template ",
-							ddmTemplate.getTemplateKey(), ": ",
-							exception.getMessage())
-					);
-				}
+			try {
+				_migrateInformationTemplate(
+					cmsMigrationContext, ddmStructure, objectDefinition,
+					templateEntry);
 			}
-
-			for (TemplateEntry templateEntry :
-					_templateEntryLocalService.getTemplateEntries(
-						cmsMigrationContext.getSourceGroupId(),
-						JournalArticle.class.getName(),
-						String.valueOf(ddmStructure.getStructureId()),
-						QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
-
-				try {
-					_migrateInformationTemplate(
-						cmsMigrationContext, ddmStructure, objectDefinition,
-						templateEntry);
-				}
-				catch (Exception exception) {
-					cmsMigrationContext.getCMSMigrationReport(
-					).addError(
-						StringBundler.concat(
-							"Unable to migrate the information template ",
-							templateEntry.getTemplateEntryId(), ": ",
-							exception.getMessage())
-					);
-				}
+			catch (Exception exception) {
+				cmsMigrationContext.getCMSMigrationReport(
+				).addError(
+					StringBundler.concat(
+						"Unable to migrate the information template ",
+						templateEntry.getTemplateEntryId(), ": ",
+						exception.getMessage())
+				);
 			}
 		}
 	}

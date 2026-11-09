@@ -20,8 +20,10 @@ import com.liferay.portal.kernel.service.ServiceContext;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -96,6 +98,14 @@ public class CMSMigrationContext {
 		String className, long classPK, ObjectEntry objectEntry) {
 
 		_objectEntries.put(_getKey(className, classPK), objectEntry);
+	}
+
+	/**
+	 * Records that the templates of the structure were migrated. Returns
+	 * <code>false</code> if they had already been migrated.
+	 */
+	public boolean addTemplateDDMStructureId(long ddmStructureId) {
+		return _templateDDMStructureIds.add(ddmStructureId);
 	}
 
 	public void addTemplateEntryId(
@@ -278,6 +288,7 @@ public class CMSMigrationContext {
 	private final ServiceContext _serviceContext;
 	private final Group _sourceGroup;
 	private final Consumer<String> _statusConsumer;
+	private final Set<Long> _templateDDMStructureIds = new HashSet<>();
 	private final Map<String, Long> _templateEntryIds = new HashMap<>();
 	private final long _userId;
 
