@@ -643,9 +643,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 			_group.getGroupId(), _portal.getClassNameId(DDMStructure.class),
 			ddmStructure.getStructureId(),
 			_portal.getClassNameId(JournalArticle.class),
-			TemplateConstants.LANG_TYPE_FTL,
-			"<#list fieldset.getSiblings() as cur_fieldset>" +
-				"${cur_fieldset.text.getData()}</#list>",
+			TemplateConstants.LANG_TYPE_FTL, RandomTestUtil.randomString(),
 			LocaleUtil.US);
 
 		String[] texts = {
@@ -690,18 +688,11 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 		Assert.assertEquals(texts.length, jsonArray.length());
 
 		for (int i = 0; i < texts.length; i++) {
-			JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-			JSONArray nestedFieldValuesJSONArray = jsonObject.getJSONArray(
-				"nestedFieldValues");
-
-			JSONObject nestedFieldValueJSONObject =
-				nestedFieldValuesJSONArray.getJSONObject(0);
-
-			JSONObject valuesJSONObject =
-				nestedFieldValueJSONObject.getJSONObject("values");
-
-			Assert.assertEquals(texts[i], valuesJSONObject.getString("en_US"));
+			Assert.assertEquals(
+				texts[i],
+				JSONUtil.getValueAsString(
+					jsonArray.getJSONObject(i), "JSONArray/nestedFieldValues",
+					"JSONObject/0", "JSONObject/values", "Object/en_US"));
 		}
 
 		DDMTemplate migratedDDMTemplate =
@@ -711,8 +702,7 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 
 		String script = migratedDDMTemplate.getScript();
 
-		Assert.assertTrue(
-			script, script.contains("cmsMigrationContext[\"fieldset\"]"));
+		Assert.assertTrue(script.contains("cmsMigrationContext[\"fieldset\"]"));
 	}
 
 	@Test
@@ -944,12 +934,12 @@ public class CMSMigrationBackgroundTaskExecutorTest {
 		String content = _renderAssetPublisherWidgetTemplate(
 			blogsEntry, readingTimeDisabledLayout);
 
-		Assert.assertFalse(content, content.contains("2 Minute Read"));
+		Assert.assertFalse(content.contains("2 Minute Read"));
 
 		content = _renderAssetPublisherWidgetTemplate(
 			blogsEntry, readingTimeUnsetLayout);
 
-		Assert.assertTrue(content, content.contains("2 Minute Read"));
+		Assert.assertTrue(content.contains("2 Minute Read"));
 	}
 
 	@Test
